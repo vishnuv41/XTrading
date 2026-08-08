@@ -101,6 +101,44 @@ class SymbolsConfig:
 
 
 @dataclass(frozen=True)
+class MLConfig:
+    # Minimum calibrated confidence to act on a model signal instead of
+    # HOLDing. Locked in from sweep_confidence.py backtesting on
+    # BTC/USDT 1h (57 trades, 57.9% win rate, +4.37% return, Sharpe 1.22,
+    # profit_factor 1.18 net of 10bps/side costs) — do not bump this
+    # back down without re-validating against a fresh out-of-sample
+    # window first; see sweep_confidence.py.
+    confidence_threshold: float = float(os.getenv("ML_CONFIDENCE_THRESHOLD", "0.70"))
+
+
+@dataclass(frozen=True)
+class RiskConfig:
+    # Account equity used for position sizing when the caller doesn't
+    # pass a live balance explicitly (e.g. local smoke tests).
+    account_equity: float = float(os.getenv("RISK_ACCOUNT_EQUITY", "10000"))
+    # Base fixed-fractional risk per trade before confidence/vol scaling.
+    base_risk_pct: float = float(os.getenv("RISK_BASE_RISK_PCT", "0.01"))
+    # ATR multiplier for stop-loss placement. Locked in from the
+    # pt_mult=3.0/sl_mult=1.5 sweep-confidence winner on BTC/USDT 1h
+    # (+10.47% return, Sharpe 2.89, 64.7% win rate, survives 10bps costs).
+    sl_atr_multiplier: float = float(os.getenv("RISK_SL_ATR_MULTIPLIER", "1.5"))
+    # Take-profit expressed as a risk multiple (pt_mult / sl_mult = 3.0/1.5).
+    tp_risk_reward: float = float(os.getenv("RISK_TP_RISK_REWARD", "2.0"))
+    # Trades with computed R:R below this are downgraded to HOLD before
+    # they ever reach position sizing (risk_engine/risk_reward.py).
+    min_risk_reward: float = float(os.getenv("RISK_MIN_RISK_REWARD", "1.5"))
+    # Portfolio-level caps (risk_engine/portfolio_risk.py).
+    max_open_trades: int = int(os.getenv("RISK_MAX_OPEN_TRADES", "5"))
+    max_portfolio_heat: float = float(os.getenv("RISK_MAX_PORTFOLIO_HEAT", "0.06"))
+    max_correlated_positions: int = int(os.getenv("RISK_MAX_CORRELATED_POSITIONS", "2"))
+    correlation_threshold: float = float(os.getenv("RISK_CORRELATION_THRESHOLD", "0.7"))
+    # Circuit breaker: if today's realized P&L (as a fraction of equity,
+    # negative = loss) is at or below -max_daily_loss_pct, no new trades
+    # are opened regardless of what the model/strategy says.
+    max_daily_loss_pct: float = float(os.getenv("RISK_MAX_DAILY_LOSS_PCT", "0.03"))
+
+
+@dataclass(frozen=True)
 class AppConfig:
     env: str = os.getenv("APP_ENV", "development")  # development | staging | production
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
@@ -111,6 +149,8 @@ class AppConfig:
     redis: RedisConfig = field(default_factory=RedisConfig)
     exchange: ExchangeConfig = field(default_factory=ExchangeConfig)
     symbols: SymbolsConfig = field(default_factory=SymbolsConfig)
+    ml: MLConfig = field(default_factory=MLConfig)
+    risk: RiskConfig = field(default_factory=RiskConfig)
 
     @property
     def is_production(self) -> bool:

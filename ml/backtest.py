@@ -114,6 +114,118 @@ def run_backtest(
     }
 
 
+def run_triple_barrier_backtest(
+    df: pd.DataFrame,
+    predictions: pd.DataFrame,
+    price_col: str = "close",
+    volatility: pd.Series = None,
+    vol_window: int = 20,
+    pt_mult: float = 2.0,
+    sl_mult: float = 2.0,
+    max_holding: int = 20,
+    confidence_threshold: float = 0.4,
+    transaction_cost_bps: float = 5.0,
+    periods_per_year: int = 252,
+) -> dict:
+    """
+    Same idea as run_backtest, but exits on the SAME volatility-scaled
+    PT/SL barriers used by ml.labeling.triple_barrier_labels, instead
+    of always holding to max_holding.
+
+    Why this matters: run_backtest's fixed-horizon exit measures a
+    DIFFERENT payout structure than what the model was trained to
+    predict — "will price hit the profit-take barrier before the
+    stop-loss barrier" only pays off like a take-profit trade if you
+    ACT like one and exit there. Holding to max_holding regardless
+    means a correct triple-barrier prediction doesn't get realized as
+    the sized gain/loss it was trained against, which can turn a real
+    classification edge into an apparently unprofitable backtest.
+
+    `pt_mult`/`sl_mult`/`max_holding`/`volatility`/`vol_window` should
+    match whatever was used to build the labels this model was trained
+    on, or the barriers won't correspond to what it actually learned.
+    """
+    if len(df) != len(predictions):
+        raise ValueError("df and predictions must be the same length/aligned.")
+
+    close = df[price_col].values
+    conf = predictions["confidence"].values
+    label = predictions["pred_label"].values
+    n = len(df)
+    cost = transaction_cost_bps / 10000
+
+    if volatility is None:
+        log_ret = np.log(df[price_col] / df[price_col].shift(1))
+        volatility = log_ret.rolling(vol_window).std()
+    vol = volatility.values
+
+    bar_returns = np.zeros(n)
+    position = 0
+    entry_price = None
+    entry_idx = None
+    upper = lower = None
+    bars_in_trade = 0
+    trades = []
+
+    def _close_trade(exit_idx, exit_price, touch_type):
+        trade_ret = (exit_price - entry_price) / entry_price * position - 2 * cost
+        trades.append({
+            "entry_idx": entry_idx, "exit_idx": exit_idx, "direction": position,
+            "bars_held": exit_idx - entry_idx, "return": trade_ret, "touch_type": touch_type,
+        })
+
+    for i in range(1, n):
+        if position != 0:
+            px = close[i]
+            bars_in_trade += 1
+            touched = None
+            if position == 1 and px >= upper:
+                touched = "upper"
+            elif position == 1 and px <= lower:
+                touched = "lower"
+            elif position == -1 and px <= lower:
+                touched = "upper"  # favorable for a short
+            elif position == -1 and px >= upper:
+                touched = "lower"  # unfavorable for a short
+            elif bars_in_trade >= max_holding:
+                touched = "vertical"
+
+            bar_returns[i] = (close[i] - close[i - 1]) / close[i - 1] * position
+            if touched is not None:
+                _close_trade(i, px, touched)
+                bar_returns[i] -= cost
+                position = 0
+                bars_in_trade = 0
+        else:
+            if (not np.isnan(conf[i]) and conf[i] >= confidence_threshold
+                    and not np.isnan(label[i]) and label[i] != 0
+                    and i < n and not np.isnan(vol[i]) and vol[i] > 0):
+                position = int(np.sign(label[i]))
+                entry_price = close[i]
+                entry_idx = i
+                upper = entry_price * (1 + pt_mult * vol[i])
+                lower = entry_price * (1 - sl_mult * vol[i])
+                bars_in_trade = 0
+                bar_returns[i] -= cost
+
+    if position != 0:
+        _close_trade(n - 1, close[-1], "forced_end")
+        bar_returns[-1] -= cost
+
+    bar_returns_s = pd.Series(bar_returns, index=df.index)
+    equity_curve = (1 + bar_returns_s).cumprod()
+    trades_df = pd.DataFrame(trades)
+
+    metrics = _compute_metrics(bar_returns_s, equity_curve, trades_df, periods_per_year)
+
+    return {
+        "equity_curve": equity_curve,
+        "bar_returns": bar_returns_s,
+        "trades": trades_df,
+        "metrics": metrics,
+    }
+
+
 def _compute_metrics(bar_returns: pd.Series, equity_curve: pd.Series, trades: pd.DataFrame, periods_per_year: int) -> dict:
     total_return = equity_curve.iloc[-1] - 1 if len(equity_curve) else np.nan
 

@@ -40,14 +40,19 @@ dist/
 # Model Artifacts
 models_artifacts/
 
+# CatBoost
+catboost_info/
+
 # Database backups
-*.sql
+*_backup.sql
+*.dump
+*.backup
 
 # SQLite
 *.db
 *.sqlite3
 
-# Redis dump
+# Redis
 dump.rdb
 
 # Coverage
@@ -57,5 +62,3 @@ htmlcov/
 # Temporary files
 *.tmp
 *.bak
-# CatBoost
-catboost_info/
