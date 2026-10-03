@@ -1,0 +1,4 @@
+{"timestamp": "2026-10-03T21:09:50+05:30", "window": "OOS_Predictions_All", "rule": "Static_Global_Top1Pct", "n_trades": 112, "net_r": -0.200, "status": "FAIL_INVERTED_TAIL"}
+{"timestamp": "2026-10-03T21:20:22+05:30", "window": "OOS_Predictions_All", "rule": "Live_Rolling_Top1Pct", "n_trades": 254, "net_r": -0.053, "status": "FAIL_FRICTION_GAP"}
+{"timestamp": "2026-10-03T21:25:13+05:30", "window": "Discovery_Set_Feb_May_2026", "rule": "ExAnteVol_Filtered_Top5Pct", "n_trades": 109, "net_r": 0.956, "status": "IN_SAMPLE_HYPOTHESIS_GENERATED"}
+{"timestamp": "2026-10-03T22:06:12+05:30", "window": "Untouched_Window_May25_Sep11_2026", "rule": "ExAnteVol_Filtered_Top5Pct_Frozen", "n_trades": 78, "net_r": -0.200, "status": "OUT_OF_SAMPLE_SHRINKAGE_EVALUATED"}
