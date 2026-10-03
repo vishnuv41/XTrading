@@ -28,6 +28,51 @@ class ExitDecision:
     fill_price: Optional[float] = None  # price the exit would print at, pre-slippage
 
 
+def update_trailing_stop(
+    position: OpenPosition,
+    supertrend_value: float,
+    supertrend_direction: int,
+) -> Optional[float]:
+    """
+    Compute a trailed stop-loss level for an open position using the
+    current bar's Supertrend line (risk_engine.stoploss.calculate_supertrend_stop
+    implements the same "use Supertrend as the stop" idea; this is the
+    per-bar update wrapper that decides whether to actually move the
+    stop). Pure function — does not mutate `position`; the caller
+    applies the returned value if not None.
+
+    Only ever tightens the stop (moves it toward the current price, in
+    the trade's favor) — a trailing stop that could also loosen isn't a
+    trailing stop, it's just noise. If the trend has flipped against the
+    position (supertrend_direction no longer agrees with position.side),
+    this returns None rather than raising: exit.py's signal-flip/exit
+    logic is what should close the trade in that case, not this
+    function silently leaving a stale or wrong-direction stop in place.
+
+    Args:
+        position: the open position.
+        supertrend_value: current bar's Supertrend line value.
+        supertrend_direction: current bar's Supertrend direction, +1 or -1.
+
+    Returns:
+        The new stop-loss level if it should move, else None (no change —
+        either the trend no longer agrees with the position side, or the
+        new level would be less favorable than the current stop).
+    """
+    expected_dir = 1 if position.side == "long" else -1
+    if supertrend_direction != expected_dir:
+        return None
+
+    if position.side == "long":
+        if supertrend_value > position.stop_loss:
+            return supertrend_value
+    else:  # short
+        if supertrend_value < position.stop_loss:
+            return supertrend_value
+
+    return None
+
+
 def check_exit(position: OpenPosition, bar_high: float, bar_low: float,
                 timeout_bars: int) -> ExitDecision:
     """

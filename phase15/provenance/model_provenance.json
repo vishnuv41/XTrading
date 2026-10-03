@@ -1,0 +1,26 @@
+{
+  "model_name": "FinancialMiniLLM-35M",
+  "evaluated_at": "2026-09-11T02:52:48+00:00",
+  "parameters": 34600000,
+  "features_used": 61,
+  "dataset_sha256": "ec4491e01bd7",
+  "canonical_train_samples": 111052,
+  "canonical_validation_samples": 34992,
+  "canonical_train_era": "2017-08-17 to 2023-12-31",
+  "canonical_validation_era": "2024-01-01 to 2025-12-31",
+  "prospective_leakage_2026": "0%",
+  "experiments_completed": [
+    {
+      "experiment": "15C-B",
+      "description": "Identical continuous 61D input tabular MLP vs Mini-LLM baseline",
+      "findings": "CatBoost (52.25%) and Logistic Regression (53.94%) outperform single-snapshot Mini-LLM (53.45%)"
+    },
+    {
+      "experiment": "15C-D",
+      "description": "Temporal horizon ablation (T=1, T=4, T=24 / stride-4 window)",
+      "findings": "T=4 (49.19% precision, PF 1.99) and T=24/stride-4 (46.40% precision, PF 1.80) prevent signal collapse, but overall accuracy (53.63%) shows no incremental gain over simpler tabular baselines"
+    }
+  ],
+  "status": "PARKED",
+  "official_verdict": "Temporal context changes Mini-LLM behavior and restores signal generation, but the experiment does not demonstrate a clear predictive advantage over simpler tabular approaches. The Mini-LLM branch is therefore parked rather than advanced to richer tokenization or QLoRA."
+}

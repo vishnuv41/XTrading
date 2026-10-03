@@ -109,6 +109,8 @@ class MLConfig:
     # back down without re-validating against a fresh out-of-sample
     # window first; see sweep_confidence.py.
     confidence_threshold: float = float(os.getenv("ML_CONFIDENCE_THRESHOLD", "0.70"))
+    use_percentile_gating: bool = os.getenv("USE_PERCENTILE_GATING", "true").lower() == "true"
+    percentile_cutoff_pct: float = float(os.getenv("ML_PERCENTILE_CUTOFF_PCT", "1.0"))
 
 
 @dataclass(frozen=True)
@@ -136,6 +138,17 @@ class RiskConfig:
     # negative = loss) is at or below -max_daily_loss_pct, no new trades
     # are opened regardless of what the model/strategy says.
     max_daily_loss_pct: float = float(os.getenv("RISK_MAX_DAILY_LOSS_PCT", "0.03"))
+    # Consecutive-loss cooldown: after this many losing trades in a row
+    # (same symbol), pause new entries for cooldown_bars. Cheap guard
+    # against a bad regime/model-drift stretch compounding losses back
+    # to back — the daily-loss % breaker alone doesn't catch a losing
+    # streak that stays under the daily threshold but repeats for days.
+    max_consecutive_losses: int = int(os.getenv("RISK_MAX_CONSECUTIVE_LOSSES", "3"))
+    cooldown_bars: int = int(os.getenv("RISK_COOLDOWN_BARS", "12"))
+    # Hard cap on new entries opened per rolling 24h window per symbol,
+    # independent of confidence/signal quality — bounds worst-case fee/
+    # slippage drag and overtrading if the model starts firing rapidly.
+    max_trades_per_day: int = int(os.getenv("RISK_MAX_TRADES_PER_DAY", "8"))
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,73 @@
+{
+  "manifest_name": "Phase 15 Dataset v1 & Tokenizer v1 Canonical Manifest",
+  "frozen_at": "2026-09-10T12:23:14.598473+00:00",
+  "dataset_sha256": "ec4491e01bd7",
+  "total_samples": 9506,
+  "overall_class_distribution": {
+    "accept_count": 4431,
+    "reject_count": 5075,
+    "accept_percentage": 46.61
+  },
+  "per_symbol_distribution": {
+    "BTC/USDT": {
+      "rows": 4938,
+      "accept": 2254,
+      "reject": 2684,
+      "accept_pct": 45.64601053057918
+    },
+    "ETH/USDT": {
+      "rows": 4938,
+      "accept": 2295,
+      "reject": 2643,
+      "accept_pct": 46.47630619684083
+    }
+  },
+  "per_year_distribution": {
+    "2026": {
+      "total_rows": 9506,
+      "accept": 4431,
+      "reject": 5075,
+      "accept_pct": 46.61266568483063
+    }
+  },
+  "per_regime_distribution": {
+    "mixed_high_vol": {
+      "total_rows": 1970,
+      "accept": 944,
+      "reject": 1026,
+      "accept_pct": 47.91878172588832
+    },
+    "mixed_low_vol": {
+      "total_rows": 1335,
+      "accept": 583,
+      "reject": 752,
+      "accept_pct": 43.670411985018724
+    },
+    "mixed_medium_vol": {
+      "total_rows": 1461,
+      "accept": 706,
+      "reject": 755,
+      "accept_pct": 48.323066392881586
+    },
+    "ranging_high_vol": {
+      "total_rows": 1050,
+      "accept": 490,
+      "reject": 560,
+      "accept_pct": 46.666666666666664
+    },
+    "ranging_low_vol": {
+      "total_rows": 2041,
+      "accept": 990,
+      "reject": 1051,
+      "accept_pct": 48.50563449289564
+    },
+    "ranging_medium_vol": {
+      "total_rows": 1649,
+      "accept": 718,
+      "reject": 931,
+      "accept_pct": 43.541540327471196
+    }
+  },
+  "data_integrity_gate_passed": true,
+  "status": "FROZEN_DATASET_V1"
+}

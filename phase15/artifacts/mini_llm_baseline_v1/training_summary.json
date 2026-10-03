@@ -1,0 +1,22 @@
+{
+  "model_name": "FinancialMiniLLM-35M-Baseline-v1",
+  "trained_at": "2026-09-10T12:26:38.424786+00:00",
+  "parameters": 34600000,
+  "features_used": 61,
+  "epochs": 10,
+  "learning_rate": 0.0002,
+  "dataset_sha256": "ec4491e01bd7",
+  "training_samples": 6655,
+  "validation_samples": 1427,
+  "validation_metrics": {
+    "validation_accuracy": 0.5116,
+    "validation_balanced_accuracy": 0.5131,
+    "validation_precision": 0.5045,
+    "validation_recall": 0.6383,
+    "validation_f1_score": 0.5636,
+    "validation_brier_score": 0.2623,
+    "validation_log_loss": 0.7194
+  },
+  "status": "FROZEN_BASELINE_V1",
+  "predictive_validity_status": "VALIDATED_ON_HISTORICAL_VAL_SET"
+}

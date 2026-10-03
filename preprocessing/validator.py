@@ -12,12 +12,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+import math
+
 def _is_valid_row(row: dict) -> bool:
     o, h, l, c, v = row["open"], row["high"], row["low"], row["close"], row["volume"]
 
     if any(x is None for x in (o, h, l, c, v)):
         return False
-    if any(x != x for x in (o, h, l, c, v)):  # NaN check without importing math/np
+    if any(not isinstance(x, (int, float)) or not math.isfinite(x) for x in (o, h, l, c, v)):
         return False
     if o <= 0 or h <= 0 or l <= 0 or c <= 0:
         return False

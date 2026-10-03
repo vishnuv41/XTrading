@@ -1,0 +1,35 @@
+{
+  "manifest_version": "1.0.0",
+  "created_at": "2026-09-10T12:18:15.444580+00:00",
+  "tokenizer_type": "Discretized Domain Financial Tokenizer",
+  "vocab_size": 2048,
+  "special_tokens": {
+    "pad": "<PAD>",
+    "bos": "<BOS>",
+    "eos": "<EOS>",
+    "unk": "<UNK>",
+    "accept": "<ACCEPT>",
+    "reject": "<REJECT>"
+  },
+  "discretization_bins": {
+    "rsi": [
+      "RSI_OVERSOLD",
+      "RSI_WEAK",
+      "RSI_NEUTRAL",
+      "RSI_BULLISH",
+      "RSI_OVERBOUGHT"
+    ],
+    "atr_vol": [
+      "VOL_LOW",
+      "VOL_NORMAL",
+      "VOL_HIGH",
+      "VOL_EXTREME"
+    ],
+    "volume_z": [
+      "VOLUMENUM_DRY",
+      "VOLUMENUM_NORMAL",
+      "VOLUMENUM_HIGH",
+      "VOLUMENUM_SPIKE"
+    ]
+  }
+}

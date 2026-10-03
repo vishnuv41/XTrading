@@ -51,7 +51,9 @@ class VirtualPortfolio:
                 f"({self.open_positions[position.symbol].trade_id}); "
                 f"close it before opening another."
             )
-        cost = position.notional_value + position.entry_fee
+        # Only margin is held against cash (notional/leverage), not the
+        # full notional — see OpenPosition.margin_required for why.
+        cost = position.margin_required + position.entry_fee
         if cost > self.cash:
             raise ValueError(
                 f"Insufficient cash for {position.symbol}: need {cost:.2f}, have {self.cash:.2f}"
@@ -67,7 +69,8 @@ class VirtualPortfolio:
 
         gross_pnl = position.unrealized_pnl(exit_price)
         net_pnl = gross_pnl - position.entry_fee - exit_fee
-        proceeds = position.notional_value + gross_pnl - exit_fee
+        # Margin held at open is released back, plus/minus the full-notional PnL.
+        proceeds = position.margin_required + gross_pnl - exit_fee
         self.cash += proceeds
 
         trade = ClosedTrade(
@@ -97,7 +100,20 @@ class VirtualPortfolio:
         return total
 
     def equity(self, prices: dict[str, float]) -> float:
-        return self.cash + self.unrealized_pnl(prices)
+        """
+        cash + margin currently held in open positions + unrealized P&L.
+
+        The margin term matters: open_position() moves margin_required
+        out of `cash` into the position (see open_position above), and
+        close_position() correctly returns it — but mid-trade, that
+        margin is still the account's money, just deployed as
+        collateral, not gone. Omitting it here would understate equity
+        by exactly the margin tied up in every open position, which
+        among other things feeds risk_engine sizing/circuit-breaker
+        decisions with an artificially shrunk number while a trade is open.
+        """
+        margin_in_positions = sum(p.margin_required for p in self.open_positions.values())
+        return self.cash + margin_in_positions + self.unrealized_pnl(prices)
 
     def mark_to_market(self, ts: datetime, prices: dict[str, float]) -> EquitySnapshot:
         """Record one equity-curve point. Call once per bar, after exits/entries for that bar are resolved."""

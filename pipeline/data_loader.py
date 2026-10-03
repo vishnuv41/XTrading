@@ -51,16 +51,30 @@ def load_ohlcv(
         WHERE exchange = :exchange AND symbol = :symbol AND timeframe = :timeframe
     """
     params = {"exchange": exchange, "symbol": symbol, "timeframe": timeframe}
+
+    # Strict Closed-Candle Rule: Exclude forming candles (ts + 1h > NOW()) unless explicit end is supplied
+    if not end:
+        # Default 1h duration guard
+        dur_seconds = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400}.get(timeframe, 3600)
+        from datetime import datetime, timezone, timedelta
+        max_ts = datetime.now(timezone.utc) - timedelta(seconds=dur_seconds)
+        query += " AND ts <= :max_closed_ts"
+        params["max_closed_ts"] = max_ts
+
     if start:
         query += " AND ts >= :start"
         params["start"] = start
     if end:
         query += " AND ts <= :end"
         params["end"] = end
-    query += " ORDER BY ts ASC"
-    if limit:
-        query += " LIMIT :limit"
+    if limit and not start:
+        query += " ORDER BY ts DESC LIMIT :limit"
         params["limit"] = limit
+    else:
+        query += " ORDER BY ts ASC"
+        if limit:
+            query += " LIMIT :limit"
+            params["limit"] = limit
 
     with engine.connect() as conn:
         rows = conn.execute(text(query), params).fetchall()
@@ -73,6 +87,8 @@ def load_ohlcv(
 
     df = pd.DataFrame(rows, columns=["timestamp", "open", "high", "low", "close", "volume"])
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    if limit and not start:
+        df = df.sort_values("timestamp").reset_index(drop=True)
     logger.info("Loaded %d rows for %s %s (%s) from %s to %s",
                 len(df), symbol, timeframe, exchange, df["timestamp"].iloc[0], df["timestamp"].iloc[-1])
     return df

@@ -1,0 +1,59 @@
+{
+  "evaluation_name": "Phase 15C Experiment B Baseline Comparison Matrix",
+  "evaluated_at": "2026-09-10T12:28:38.736990+00:00",
+  "train_samples": 6655,
+  "validation_samples": 1427,
+  "num_features": 61,
+  "models": [
+    {
+      "model_name": "Majority Classifier",
+      "accuracy": 0.506,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "brier_score": 0.494,
+      "log_loss": 17.8071
+    },
+    {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.5403,
+      "balanced_accuracy": 0.5361,
+      "precision": 0.6161,
+      "recall": 0.1844,
+      "f1_score": 0.2838,
+      "brier_score": 0.2478,
+      "log_loss": 0.6889
+    },
+    {
+      "model_name": "Multi-Layer Perceptron (MLP)",
+      "accuracy": 0.5088,
+      "balanced_accuracy": 0.5093,
+      "precision": 0.5026,
+      "recall": 0.5574,
+      "f1_score": 0.5286,
+      "brier_score": 0.4888,
+      "log_loss": 16.6103
+    },
+    {
+      "model_name": "CatBoost Meta-Filter",
+      "accuracy": 0.5389,
+      "balanced_accuracy": 0.5384,
+      "precision": 0.5361,
+      "recall": 0.495,
+      "f1_score": 0.5147,
+      "brier_score": 0.2466,
+      "log_loss": 0.6865
+    },
+    {
+      "model_name": "FinancialMiniLLM (35M Transformer)",
+      "accuracy": 0.5116,
+      "balanced_accuracy": 0.5131,
+      "precision": 0.5045,
+      "recall": 0.6383,
+      "f1_score": 0.5636,
+      "brier_score": 0.2623,
+      "log_loss": 0.7194
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "manifest_version": "1.0.0",
+  "created_at": "2026-09-10T12:18:15.444580+00:00",
+  "feature_count": 115,
+  "feature_module": "ml.utils.preprocessing.build_feature_matrix",
+  "feature_categories": {
+    "trend_momentum": [
+      "EMA20",
+      "EMA50",
+      "EMA200",
+      "MACD",
+      "RSI14",
+      "ADX14",
+      "Supertrend"
+    ],
+    "volatility": [
+      "ATR14",
+      "BB_width",
+      "Realized_Vol_10_20_50",
+      "Parkinson_Vol"
+    ],
+    "volume_liquidity": [
+      "Volume_Zscore_20",
+      "OBV",
+      "CMF20",
+      "MFI14",
+      "Dollar_Volume"
+    ],
+    "time_regime": [
+      "Hour_Sin",
+      "Hour_Cos",
+      "DOW_Sin",
+      "DOW_Cos",
+      "Session_Asia_EU_US"
+    ]
+  },
+  "causal_guarantee": "All features computed strictly from closed candles <= T"
+}

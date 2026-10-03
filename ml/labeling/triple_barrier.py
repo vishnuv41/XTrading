@@ -22,6 +22,7 @@ def triple_barrier_labels(
     sl_mult: float = 2.0,
     max_holding: int = 20,
     min_ret: float = 0.0,
+    min_ret_vol_mult: float = 0.5,
 ) -> pd.DataFrame:
     """
     Compute triple-barrier labels.
@@ -33,9 +34,18 @@ def triple_barrier_labels(
         a rolling std of log returns over `vol_window`.
     pt_mult, sl_mult : barrier width as a multiple of volatility.
     max_holding : vertical barrier — max bars to hold before forcing exit.
-    min_ret : if the vertical-barrier return's absolute value is below
-        this, the label is forced to 0 regardless of sign (filters out
-        labeling near-flat vertical exits as directional).
+    min_ret : fixed absolute-return floor for the vertical-barrier
+        neutral decision (kept for backward compatibility; default 0.0
+        makes it a no-op — see min_ret_vol_mult, which is what actually
+        drives the HOLD/neutral decision by default).
+    min_ret_vol_mult : the vertical-barrier neutral threshold is
+        max(min_ret, min_ret_vol_mult * vol[i]) — i.e. volatility-
+        relative by default (0.5x that bar's vol), rather than a single
+        fixed percentage that's too tight in calm regimes and too loose
+        in volatile ones. A fixed min_ret=0.0 previously made the
+        abs(ret) < min_ret check nearly unreachable, so every vertical/
+        timeout exit was forced into a directional +1/-1 label with no
+        genuine "nothing happened" class.
 
     Returns
     -------
@@ -104,7 +114,7 @@ def triple_barrier_labels(
         exit_price = close[exit_idx]
         ret = (exit_price - close[i]) / close[i]
 
-        if touch_type[i] == "vertical" and abs(ret) < min_ret:
+        if touch_type[i] == "vertical" and abs(ret) < max(min_ret, min_ret_vol_mult * vol[i]):
             label = 0
         elif touch_type[i] == "upper":
             label = 1

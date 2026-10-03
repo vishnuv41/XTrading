@@ -66,14 +66,19 @@ async def subscribe_candles(symbol: str, timeframe: str):
         async for candle in subscribe_candles("BTC/USDT", "1m"):
             ...
     """
-    client = get_client()
-    channel = f"{CANDLE_CHANNEL_PREFIX}:{symbol}:{timeframe}"
-    pubsub = client.pubsub()
-    await pubsub.subscribe(channel)
-    try:
-        async for message in pubsub.listen():
-            if message["type"] != "message":
-                continue
-            yield json.loads(message["data"])
-    finally:
-        await pubsub.unsubscribe(channel)
+    while True:
+        try:
+            client = get_client()
+            channel = f"{CANDLE_CHANNEL_PREFIX}:{symbol}:{timeframe}"
+            pubsub = client.pubsub()
+            await pubsub.subscribe(channel)
+            try:
+                async for message in pubsub.listen():
+                    if message["type"] != "message":
+                        continue
+                    yield json.loads(message["data"])
+            finally:
+                await pubsub.unsubscribe(channel)
+        except Exception as exc:
+            logger.warning("Redis pubsub disconnected for %s:%s (%s) — reconnecting in 2s...", symbol, timeframe, exc)
+            await aioredis.asyncio.sleep(2)

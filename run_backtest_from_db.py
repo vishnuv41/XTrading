@@ -39,10 +39,15 @@ def main():
     ap.add_argument("--model-dir", required=True)
     ap.add_argument("--holdout-frac", type=float, default=0.15)
     ap.add_argument("--max-holding", type=int, default=20)
-    ap.add_argument("--pt-mult", type=float, default=2.0, help="must match what the model was trained on")
-    ap.add_argument("--sl-mult", type=float, default=2.0, help="must match what the model was trained on")
+    ap.add_argument("--pt-mult", type=float, default=settings.risk.tp_risk_reward * settings.risk.sl_atr_multiplier,
+                     help="must match what the model was trained on; defaults to the deployed R:R * SL multiplier")
+    ap.add_argument("--sl-mult", type=float, default=settings.risk.sl_atr_multiplier,
+                     help="must match what the model was trained on; defaults to settings.risk.sl_atr_multiplier")
     ap.add_argument("--vol-window", type=int, default=20)
-    ap.add_argument("--confidence-threshold", type=float, default=0.4)
+    ap.add_argument("--confidence-threshold", type=float, default=settings.ml.confidence_threshold,
+                     help="defaults to the deployed settings.ml.confidence_threshold, not an arbitrary lower value — "
+                          "a lower threshold here than what's actually deployed makes this eval measure a different, "
+                          "more-trades/lower-quality strategy than the one that will actually run")
     # Binance spot taker fee is 10bps/side; 5bps assumes maker orders or a
     # fee discount. Use 10-15bps for a more conservative, realistic check,
     # and add a few bps on top for slippage on top of that if trading size

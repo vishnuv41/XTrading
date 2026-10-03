@@ -52,7 +52,7 @@ def calculate_ichimoku(
         (high.rolling(senkou_b_period).max() + low.rolling(senkou_b_period).min()) / 2
     ).shift(kijun_period)
 
-    chikou = close.shift(-chikou_shift)
+    chikou = close.shift(chikou_shift)
 
     df["ichimoku_tenkan"] = tenkan
     df["ichimoku_kijun"] = kijun

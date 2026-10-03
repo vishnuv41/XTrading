@@ -79,7 +79,8 @@ def calculate_trend_regime(df: pd.DataFrame, adx_col: str = "ADX14",
                             adx_threshold: float = 25.0,
                             hurst_window: int = 100,
                             hurst_trending_threshold: float = 0.55,
-                            hurst_ranging_threshold: float = 0.45) -> pd.DataFrame:
+                            hurst_ranging_threshold: float = 0.45,
+                            latest_only: bool = False) -> pd.DataFrame:
     """
     Add trend-regime columns to the dataframe.
 
@@ -97,6 +98,18 @@ def calculate_trend_regime(df: pd.DataFrame, adx_col: str = "ADX14",
             candles — needs to be reasonably large for a stable estimate).
         hurst_trending_threshold: Hurst above this = trending signal.
         hurst_ranging_threshold: Hurst below this = ranging signal.
+        latest_only: If True, only compute Hurst (and the trend_regime
+            label derived from it) for the LAST row instead of the full
+            rolling history. The Hurst rolling-apply is the single most
+            expensive step in this pipeline (a Python-level regression
+            per row) — for a live/replay caller that only ever reads
+            df.iloc[-1] (see inference/realtime_pipeline.py's
+            _extract_market_state), computing it for every historical
+            row is pure waste: cost drops from O(len(df) * hurst_window)
+            to O(hurst_window), independent of how much history is in
+            df. All other rows get NaN/pd.NA for the Hurst-derived
+            columns — callers that need the full historical series
+            (training, backtesting) must use the default False.
 
     Returns:
         df with new columns:
@@ -112,13 +125,7 @@ def calculate_trend_regime(df: pd.DataFrame, adx_col: str = "ADX14",
     if close_col not in df.columns:
         raise ValueError(f"Column '{close_col}' not found in dataframe")
 
-    df["hurst"] = df[close_col].rolling(window=hurst_window).apply(
-        lambda w: calculate_hurst_exponent(pd.Series(w)), raw=False
-    )
-
     df["adx_trending"] = df[adx_col] > adx_threshold
-    df["hurst_trending"] = df["hurst"] > hurst_trending_threshold
-    hurst_ranging = df["hurst"] < hurst_ranging_threshold
 
     def classify(row_adx_trend, row_hurst_trend, row_hurst_range):
         if row_adx_trend and row_hurst_trend:
@@ -127,9 +134,33 @@ def calculate_trend_regime(df: pd.DataFrame, adx_col: str = "ADX14",
             return "ranging"
         return "mixed"
 
-    df["trend_regime"] = [
-        classify(a, h, r) for a, h, r in zip(df["adx_trending"], df["hurst_trending"], hurst_ranging)
-    ]
+    if latest_only:
+        df["hurst"] = np.nan
+        df["hurst_trending"] = False
+        df["trend_regime"] = pd.NA
+
+        if len(df) >= hurst_window:
+            last_idx = df.index[-1]
+            last_hurst = calculate_hurst_exponent(df[close_col].iloc[-hurst_window:])
+            df.loc[last_idx, "hurst"] = last_hurst
+
+            if pd.notna(last_hurst):
+                hurst_trend = last_hurst > hurst_trending_threshold
+                hurst_range = last_hurst < hurst_ranging_threshold
+                df.loc[last_idx, "hurst_trending"] = hurst_trend
+                df.loc[last_idx, "trend_regime"] = classify(
+                    bool(df.loc[last_idx, "adx_trending"]), hurst_trend, hurst_range,
+                )
+    else:
+        df["hurst"] = df[close_col].rolling(window=hurst_window).apply(
+            lambda w: calculate_hurst_exponent(pd.Series(w)), raw=False
+        )
+        df["hurst_trending"] = df["hurst"] > hurst_trending_threshold
+        hurst_ranging = df["hurst"] < hurst_ranging_threshold
+
+        df["trend_regime"] = [
+            classify(a, h, r) for a, h, r in zip(df["adx_trending"], df["hurst_trending"], hurst_ranging)
+        ]
     return df
 
 

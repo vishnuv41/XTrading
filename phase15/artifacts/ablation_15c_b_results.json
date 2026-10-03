@@ -1,0 +1,142 @@
+{
+  "experiment_name": "Phase 15C Experiment 15C-B (Historical 2017-2025 Split)",
+  "executed_at": "2026-09-10T16:33:04.653059+00:00",
+  "train_era": "2017-08-17 to 2023-12-31",
+  "validation_era": "2024-01-01 to 2025-12-31",
+  "train_samples": 111052,
+  "validation_samples": 34992,
+  "num_features": 61,
+  "probability_clipping_epsilon": 1e-15,
+  "models": [
+    {
+      "model_name": "Majority Classifier Baseline",
+      "input_type": "Zero-Rule Constant Priority",
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5447,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "brier_score": 0.25,
+          "log_loss": 0.6931
+        },
+        "trade_utility": {
+          "signal_count": 0,
+          "tp_count": 0,
+          "sl_count": 0,
+          "timeout_count": 0,
+          "win_rate_pct": 0.0,
+          "net_pnl_r": 0.0,
+          "profit_factor": 0.0,
+          "sharpe_ratio": 0.0,
+          "max_drawdown_r": 0.0
+        }
+      }
+    },
+    {
+      "model_name": "Logistic Regression Baseline",
+      "input_type": "Standardized Continuous Tabular (61D)",
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5394,
+          "balanced_accuracy": 0.5079,
+          "precision": 0.482,
+          "recall": 0.155,
+          "f1_score": 0.2346,
+          "brier_score": 0.2492,
+          "log_loss": 0.6918
+        },
+        "trade_utility": {
+          "signal_count": 5125,
+          "tp_count": 2470,
+          "sl_count": 2528,
+          "timeout_count": 127,
+          "win_rate_pct": 48.2,
+          "net_pnl_r": 2412.0,
+          "profit_factor": 1.9541,
+          "sharpe_ratio": 5.0375,
+          "max_drawdown_r": 74.0
+        }
+      }
+    },
+    {
+      "model_name": "CatBoost Meta-Filter Baseline",
+      "input_type": "Standardized Continuous Tabular (61D)",
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5225,
+          "balanced_accuracy": 0.5065,
+          "precision": 0.4654,
+          "recall": 0.3268,
+          "f1_score": 0.384,
+          "brier_score": 0.288,
+          "log_loss": 0.803
+        },
+        "trade_utility": {
+          "signal_count": 11188,
+          "tp_count": 5207,
+          "sl_count": 5774,
+          "timeout_count": 207,
+          "win_rate_pct": 46.54,
+          "net_pnl_r": 4640.0,
+          "profit_factor": 1.8036,
+          "sharpe_ratio": 4.4329,
+          "max_drawdown_r": 216.0
+        }
+      }
+    },
+    {
+      "model_name": "Multi-Layer Perceptron (MLP)",
+      "input_type": "Standardized Continuous Tabular (61D)",
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5195,
+          "balanced_accuracy": 0.5073,
+          "precision": 0.4653,
+          "recall": 0.3709,
+          "f1_score": 0.4128,
+          "brier_score": 0.3707,
+          "log_loss": 1.4567
+        },
+        "trade_utility": {
+          "signal_count": 12701,
+          "tp_count": 5910,
+          "sl_count": 6568,
+          "timeout_count": 223,
+          "win_rate_pct": 46.53,
+          "net_pnl_r": 5252.0,
+          "profit_factor": 1.7996,
+          "sharpe_ratio": 4.4182,
+          "max_drawdown_r": 162.0
+        }
+      }
+    },
+    {
+      "model_name": "FinancialMiniLLM (35M Transformer)",
+      "input_type": "Tokenized Quantized Snapshot (64 Tokens)",
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5345,
+          "balanced_accuracy": 0.5024,
+          "precision": 0.4639,
+          "recall": 0.1435,
+          "f1_score": 0.2192,
+          "brier_score": 0.2682,
+          "log_loss": 0.7428
+        },
+        "trade_utility": {
+          "signal_count": 4928,
+          "tp_count": 2286,
+          "sl_count": 2541,
+          "timeout_count": 101,
+          "win_rate_pct": 46.39,
+          "net_pnl_r": 2031.0,
+          "profit_factor": 1.7993,
+          "sharpe_ratio": 4.4096,
+          "max_drawdown_r": 131.0
+        }
+      }
+    }
+  ]
+}

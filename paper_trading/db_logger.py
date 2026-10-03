@@ -119,3 +119,85 @@ def log_trade_close(trade: ClosedTrade, cash_after: float, equity_after: float,
     }
     with eng.begin() as conn:
         conn.execute(_INSERT_TRADE_CLOSE, params)
+
+
+_SELECT_ACTIVE_OPEN_POSITIONS = text("""
+    SELECT t1.trade_id, t1.exchange, t1.symbol, t1.timeframe, t1.side, t1.ts as entry_ts,
+           t1.price as entry_price, t1.size, t1.fee as entry_fee, t1.stop_loss, t1.take_profit,
+           t1.cash_after
+    FROM trade_log t1
+    LEFT JOIN trade_log t2 ON t1.trade_id = t2.trade_id AND t2.action = 'CLOSE'
+    WHERE t1.symbol = :symbol AND t1.timeframe = :timeframe AND t1.action = 'OPEN' AND t2.id IS NULL
+      AND t1.ts >= '2026-09-06 14:00:00+00'
+    ORDER BY t1.ts DESC
+    LIMIT 1
+""")
+
+_COUNT_BARS_HELD = text("""
+    SELECT COUNT(*) FROM prediction_log
+    WHERE symbol = :symbol AND timeframe = :timeframe AND ts > :entry_ts
+""")
+
+
+def load_active_open_positions(symbol: str, timeframe: str, engine: Optional[Engine] = None) -> list[dict]:
+    eng = _engine_or_default(engine)
+    with eng.connect() as conn:
+        rows = conn.execute(
+            _SELECT_ACTIVE_OPEN_POSITIONS,
+            {"symbol": symbol, "timeframe": timeframe}
+        ).mappings().all()
+        return [dict(r) for r in rows]
+
+
+def count_bars_held_since(symbol: str, timeframe: str, entry_ts, engine: Optional[Engine] = None) -> int:
+    eng = _engine_or_default(engine)
+    with eng.connect() as conn:
+        cnt = conn.execute(
+            _COUNT_BARS_HELD,
+            {"symbol": symbol, "timeframe": timeframe, "entry_ts": entry_ts}
+        ).scalar()
+        return cnt or 0
+
+
+_SELECT_GLOBAL_REALIZED_PNL = text("""
+    SELECT COALESCE(SUM(realized_pnl), 0.0)
+    FROM trade_log
+    WHERE action = 'CLOSE'
+""")
+
+_SELECT_ALL_ACTIVE_OPEN_POSITIONS = text("""
+    SELECT t1.trade_id, t1.exchange, t1.symbol, t1.timeframe, t1.side, t1.ts as entry_ts,
+           t1.price as entry_price, t1.size, t1.fee as entry_fee, t1.stop_loss, t1.take_profit
+    FROM trade_log t1
+    LEFT JOIN trade_log t2 ON t1.trade_id = t2.trade_id AND t2.action = 'CLOSE'
+    WHERE t1.action = 'OPEN' AND t2.id IS NULL
+      AND t1.ts >= '2026-09-06 14:00:00+00'
+""")
+
+
+def load_global_portfolio_state(starting_cash: float = 10000.0, leverage: float = 3.0, engine: Optional[Engine] = None) -> dict:
+    eng = _engine_or_default(engine)
+    with eng.connect() as conn:
+        res_pnl = conn.execute(_SELECT_GLOBAL_REALIZED_PNL).scalar() or 0.0
+        active_rows = conn.execute(_SELECT_ALL_ACTIVE_OPEN_POSITIONS).mappings().all()
+
+        tied_capital = 0.0
+        for r in active_rows:
+            notional = float(r["size"]) * float(r["entry_price"])
+            margin = notional / leverage if leverage else notional
+            entry_fee = float(r["entry_fee"])
+            tied_capital += (margin + entry_fee)
+
+        total_realized_pnl = float(res_pnl)
+        available_cash = starting_cash + total_realized_pnl - tied_capital
+        global_equity = starting_cash + total_realized_pnl
+
+        return {
+            "starting_cash": starting_cash,
+            "total_realized_pnl": total_realized_pnl,
+            "available_cash": available_cash,
+            "global_equity": global_equity,
+            "active_positions": [dict(r) for r in active_rows],
+        }
+
+

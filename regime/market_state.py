@@ -78,7 +78,8 @@ def calculate_market_state(df: pd.DataFrame,
     if recompute_regimes:
         trend_kwargs = {k: v for k, v in regime_kwargs.items()
                          if k in ("adx_threshold", "hurst_window",
-                                   "hurst_trending_threshold", "hurst_ranging_threshold")}
+                                   "hurst_trending_threshold", "hurst_ranging_threshold",
+                                   "latest_only")}
         vol_kwargs = {k: v for k, v in regime_kwargs.items()
                       if k in ("window", "lookback_for_percentile",
                                 "low_pct", "high_pct", "use_garch")}

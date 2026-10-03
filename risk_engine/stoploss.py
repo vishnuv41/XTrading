@@ -94,7 +94,7 @@ def calculate_supertrend_stop(row, side: str) -> float:
     entry.
 
     Args:
-        row: A dataframe row (or dict) with a 'Supertrend' column already
+        row: A dataframe row (or dict) with a 'supertrend' column already
             computed (indicators/trend/supertrend.py).
         side: 'long' or 'short'. Only meaningful when the Supertrend
             direction agrees with the position side — see the guard
@@ -115,7 +115,7 @@ def calculate_supertrend_stop(row, side: str) -> float:
             f"position side '{side}' — check exit.py's exit_{side} signal "
             f"before continuing to hold this position."
         )
-    return row["Supertrend"]
+    return row["supertrend"]
 
 
 if __name__ == "__main__":

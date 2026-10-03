@@ -137,11 +137,30 @@ def calculate_adjusted_position_size(account_equity: float, entry_price: float,
           'position_size'   - size in asset units
           'notional_value'  - position_size * entry_price
           'risk_amount'     - account_equity * risk_pct (capital at risk)
+          'blocked_reason'  - present (non-None) only when account_equity
+                               was <= 0; all size/amount fields are 0.0
+                               in that case rather than raising.
     """
     if vol_regime not in ("low", "medium", "high"):
         raise ValueError("vol_regime must be 'low', 'medium', or 'high'")
     if not (0 <= signal_confidence <= 1):
         raise ValueError("signal_confidence must be between 0 and 1")
+
+    if account_equity <= 0:
+        # Graceful degradation, not a crash: an equity-depleted account is
+        # an expected (if unhappy) state for a leveraged system in a loss
+        # streak, and every caller of this function should get a safe
+        # "don't trade" result rather than having to catch a ValueError
+        # from several layers down. inference.realtime_pipeline already
+        # gates on this earlier for the same reason — this is the second
+        # line of defense for any other caller.
+        return {
+            "risk_pct": 0.0,
+            "position_size": 0.0,
+            "notional_value": 0.0,
+            "risk_amount": 0.0,
+            "blocked_reason": f"account_equity non-positive ({account_equity:.2f})",
+        }
 
     vol_scalar = {"low": 1.2, "medium": 1.0, "high": 0.6}[vol_regime]
 

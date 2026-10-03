@@ -1,0 +1,58 @@
+{
+  "gate_version": "1.0.0",
+  "audited_at": "2026-09-10T12:23:17.364273+00:00",
+  "dataset_name": "Phase 15 Dataset v1 Final Freeze",
+  "passed_all_checks": true,
+  "checks": {
+    "1_monotonicity": {
+      "passed": true,
+      "details": "Strictly monotonic increasing"
+    },
+    "2_duplicate_detection": {
+      "passed": true,
+      "details": "0 duplicates found"
+    },
+    "3_feature_causality": {
+      "passed": true,
+      "details": "Suspicious columns: []"
+    },
+    "4_label_correctness": {
+      "passed": true,
+      "details": {
+        "REJECT": 5075,
+        "ACCEPT": 4431
+      }
+    },
+    "5_partition_boundaries": {
+      "passed": true,
+      "train_rows_2017_2023": 0,
+      "val_rows_2024_2025": 0,
+      "test_rows_2026_plus": 9506
+    },
+    "6_tokenizer_determinism": {
+      "passed": true,
+      "vocab_size": 2048,
+      "details": "Deterministic discretized tokenization"
+    },
+    "7_source_data_hash": {
+      "passed": true,
+      "sha256": "e2ee9bf88d37"
+    },
+    "8_phase13_outcome_firewall": {
+      "passed": true,
+      "details": "Phase 13 trade outcomes isolated"
+    },
+    "9_nan_inf_cleanliness": {
+      "passed": true,
+      "has_nan": false,
+      "has_inf": false
+    },
+    "10_class_distribution": {
+      "passed": true,
+      "distribution": {
+        "REJECT": 5075,
+        "ACCEPT": 4431
+      }
+    }
+  }
+}

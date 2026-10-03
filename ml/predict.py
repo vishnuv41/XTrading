@@ -5,6 +5,38 @@ Loads trained base models, rebuilds the feature stack for new OHLCV
 data, and returns calibrated probabilities + a confidence-scored
 directional call per bar. This is the module inference/realtime_pipeline.py
 should import rather than duplicating feature/model logic.
+
+2026-08-09 CHANGE (see diagnose_ensemble.py / compare_calibration_methods.py
+results): predict() used to pick pred_class from the CALIBRATED
+probabilities (np.argmax(calibrator.transform(raw_proba))). Measured on
+two independent holdouts (calib_val, split off before final test, and
+final test itself, never used for method selection), this consistently
+destroyed the HOLD class: every calibration flip moved rows AWAY from
+HOLD or INTO BUY, and BOTH isotonic and sigmoid did this — ruling out
+"wrong calibration method" and pointing at the mechanism itself:
+ProbabilityCalibrator fits each class independently as its own one-vs-
+rest curve, then renormalizes. Nothing about that process guarantees
+the class with the highest RAW score still has the highest score after
+calibration, and empirically it didn't.
+
+Fix: pred_class is now decided from raw_proba (what the ensemble/
+meta-learner actually believes), never re-ranked by calibration.
+calibrator is used only to convert the winning class's raw score into a
+calibrated confidence number — a scalar rescaling of an already-made
+decision, not a re-decision. prob_down/prob_flat/prob_up are still the
+full calibrated distribution (useful for expected-value math
+downstream), but callers should NOT assume the column matching
+pred_label is that row's max value anymore — confidence is the number
+to use for "how much to trust this call", not max(prob_down,
+prob_flat, prob_up).
+
+This is a single, isolated change (2 lines of actual logic, in the
+block marked below). Nothing in ml/calibration/, ml/models/ensemble.py,
+or ml/train.py was touched. Compare against the pre-change baseline
+(same models_artifacts/BTCUSDT_1h/, still isotonic-fit, unchanged)
+before/after this file changes to confirm HOLD calls actually reappear
+in inference/backtest output, per the "one controlled change -> re-
+evaluate" rule — do not fold in any other change until that's confirmed.
 """
 
 import json
@@ -113,16 +145,25 @@ def predict(
         from ml.train.run_training_pipeline).
     feature_columns : the exact training-time feature column order
         (ensemble['X_columns'] from run_training_pipeline's return dict).
-    calibrator : optional fitted ProbabilityCalibrator; if given, output
-        probabilities are calibrated.
+    calibrator : optional fitted ProbabilityCalibrator; if given,
+        confidence (and the reported per-class probabilities) are
+        calibrated. The predicted class itself is always decided from
+        raw, uncalibrated probabilities — see module docstring for why.
     has_volume : must match what the model was trained with.
 
     Returns
     -------
     DataFrame indexed like `df`, columns:
         - 'pred_label'    : predicted class, remapped back to {-1, 0, 1}
+                             — decided from RAW ensemble probabilities.
         - 'prob_down', 'prob_flat', 'prob_up' : per-class probability
-        - 'confidence'    : max class probability (0-1)
+          (calibrated, if a calibrator is given). Informational / for
+          expected-value math — NOT guaranteed to have its max in the
+          column matching pred_label once calibrated.
+        - 'confidence'    : calibrated probability of the class in
+          pred_label specifically (or raw, if no calibrator given).
+          This is the number to use for "how much to trust this call",
+          not max(prob_down, prob_flat, prob_up).
     """
     X, _feat_df = prepare_model_input(df, feature_columns=feature_columns, has_volume=has_volume)
     valid_mask = X.notna().all(axis=1)
@@ -131,9 +172,14 @@ def predict(
     raw_proba = ensemble.predict_proba(X_valid)
     proba = calibrator.transform(raw_proba) if calibrator is not None else raw_proba
 
-    pred_class = np.argmax(proba, axis=1)
+    # --- the fix: decide the class from RAW probabilities, never from
+    # calibration's independently-fit-per-class-then-renormalized output
+    # (confirmed on calib_val + final test to silently drop HOLD) ---
+    pred_class = np.argmax(raw_proba, axis=1)
+    confidence = proba[np.arange(len(pred_class)), pred_class]
+    # --- end fix ---
+
     pred_label = pd.Series(pred_class).map(INVERSE_LABEL_MAP).values
-    confidence = proba.max(axis=1)
 
     result = pd.DataFrame(
         {

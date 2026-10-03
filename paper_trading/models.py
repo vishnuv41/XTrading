@@ -31,17 +31,18 @@ class OpenPosition:
     take_profit: float
     risk_pct: float  # fraction of equity risked, for portfolio_risk.py's heat calc
     entry_fee: float
+    leverage: float = 1.0  # recorded at open time so later config changes don't retroactively reprice open positions
     bars_held: int = 0
 
     @staticmethod
     def new(exchange, symbol, timeframe, side, entry_ts, entry_price,
-            size, stop_loss, take_profit, risk_pct, entry_fee) -> "OpenPosition":
+            size, stop_loss, take_profit, risk_pct, entry_fee, leverage: float = 1.0) -> "OpenPosition":
         return OpenPosition(
             trade_id=str(uuid.uuid4()),
             exchange=exchange, symbol=symbol, timeframe=timeframe, side=side,
             entry_ts=entry_ts, entry_price=entry_price, size=size,
             stop_loss=stop_loss, take_profit=take_profit,
-            risk_pct=risk_pct, entry_fee=entry_fee,
+            risk_pct=risk_pct, entry_fee=entry_fee, leverage=leverage,
         )
 
     @property
@@ -52,6 +53,18 @@ class OpenPosition:
     @property
     def notional_value(self) -> float:
         return self.size * self.entry_price
+
+    @property
+    def margin_required(self) -> float:
+        """
+        Cash actually held against this position. At leverage=1.0 this
+        equals notional_value (a plain cash/spot position); at higher
+        leverage, only notional/leverage is held, matching how
+        risk_engine.position_size's risk_pct/stop-distance formula
+        already assumes capital is deployed (see paper_trading.config's
+        `leverage` docstring for why this distinction exists at all).
+        """
+        return self.notional_value / self.leverage
 
     def unrealized_pnl(self, current_price: float) -> float:
         return (current_price - self.entry_price) * self.size * self.direction

@@ -43,10 +43,24 @@ def get_engine() -> Engine:
             pool_size=settings.db.pool_min_size,
             max_overflow=settings.db.pool_max_size - settings.db.pool_min_size,
             pool_pre_ping=True,  # drop dead connections instead of erroring on them
+            pool_recycle=3600,   # recycle connections every hour to avoid stale drops
             future=True,
         )
         logger.info("Created sync DB engine for %s:%s/%s", settings.db.host, settings.db.port, settings.db.name)
     return _engine
+
+
+def with_db_retry(fn, *args, retries: int = 3, **kwargs):
+    """Execute a database operation with retries on transient connection drops."""
+    import time
+    for attempt in range(1, retries + 1):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as exc:
+            if attempt == retries:
+                raise exc
+            logger.warning("Database query dropped (%s), retrying [%d/%d]...", exc, attempt, retries)
+            time.sleep(1.0 * attempt)
 
 
 def get_session_factory():

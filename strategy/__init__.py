@@ -35,6 +35,12 @@ from .entry import generate_entry_signal
 from .exit import calculate_exit_signals, get_exit_decision
 from .signal import generate_signals, summarize_latest_signal
 from .multi_timeframe import confirm_multi_timeframe
+from .breakout import generate_breakout_signal
+from .momentum import generate_momentum_signal
+from .pullback import generate_pullback_signal
+from .cross_asset import generate_cross_asset_signal
+from .registry import STRATEGY_REGISTRY, run_all_strategies, latest_signals
+from .fusion import FusedSignal, fuse_signals, fuse_from_dataframe
 
 __all__ = [
     "calculate_trend_bias",
@@ -42,4 +48,10 @@ __all__ = [
     "calculate_exit_signals", "get_exit_decision",
     "generate_signals", "summarize_latest_signal",
     "confirm_multi_timeframe",
+    "generate_breakout_signal",
+    "generate_momentum_signal",
+    "generate_pullback_signal",
+    "generate_cross_asset_signal",
+    "STRATEGY_REGISTRY", "run_all_strategies", "latest_signals",
+    "FusedSignal", "fuse_signals", "fuse_from_dataframe",
 ]

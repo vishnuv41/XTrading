@@ -1,0 +1,93 @@
+{
+  "experiment_name": "Phase 15C Experiment 15C-D (Canonical 2017-2025 Temporal Horizon Ablation)",
+  "executed_at": "2026-09-10T20:52:25.599582+00:00",
+  "train_era": "2017-08-17 to 2023-12-31",
+  "validation_era": "2024-01-01 to 2025-12-31",
+  "probability_clipping_epsilon": 1e-15,
+  "horizons": [
+    {
+      "sequence_length": 1,
+      "horizon_label": "T=1 candle window",
+      "train_samples": 111052,
+      "validation_samples": 34992,
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5447,
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "brier_score": 0.2493,
+          "log_loss": 0.6918
+        },
+        "trade_utility": {
+          "signal_count": 0,
+          "tp_count": 0,
+          "sl_count": 0,
+          "timeout_count": 0,
+          "win_rate_pct": 0.0,
+          "net_pnl_r": 0.0,
+          "profit_factor": 0.0,
+          "sharpe_ratio": 0.0,
+          "max_drawdown_r": 0.0
+        }
+      }
+    },
+    {
+      "sequence_length": 4,
+      "horizon_label": "T=4 candle window",
+      "train_samples": 111049,
+      "validation_samples": 34992,
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5445,
+          "balanced_accuracy": 0.5009,
+          "precision": 0.4919,
+          "recall": 0.0133,
+          "f1_score": 0.0259,
+          "brier_score": 0.251,
+          "log_loss": 0.6954
+        },
+        "trade_utility": {
+          "signal_count": 431,
+          "tp_count": 212,
+          "sl_count": 213,
+          "timeout_count": 6,
+          "win_rate_pct": 49.19,
+          "net_pnl_r": 211.0,
+          "profit_factor": 1.9906,
+          "sharpe_ratio": 5.2135,
+          "max_drawdown_r": 11.0
+        }
+      }
+    },
+    {
+      "sequence_length": 24,
+      "horizon_label": "T=24 candle window",
+      "train_samples": 111029,
+      "validation_samples": 34992,
+      "metrics": {
+        "classification": {
+          "accuracy": 0.5363,
+          "balanced_accuracy": 0.502,
+          "precision": 0.464,
+          "recall": 0.1187,
+          "f1_score": 0.189,
+          "brier_score": 0.2562,
+          "log_loss": 0.7067
+        },
+        "trade_utility": {
+          "signal_count": 4075,
+          "tp_count": 1891,
+          "sl_count": 2095,
+          "timeout_count": 89,
+          "win_rate_pct": 46.4,
+          "net_pnl_r": 1687.0,
+          "profit_factor": 1.8053,
+          "sharpe_ratio": 4.4318,
+          "max_drawdown_r": 59.0
+        }
+      }
+    }
+  ]
+}

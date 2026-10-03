@@ -66,6 +66,22 @@ def compute_metrics(portfolio: VirtualPortfolio, periods_per_year: int = 8760) -
 
     last_equity = equity_series.iloc[-1] if len(equity_series) else portfolio.cash
 
+    # Exit-reason breakdown: avg P&L and count per exit_reason
+    # ('stop_loss' | 'take_profit' | 'timeout' | 'signal_flip'). This is
+    # the key diagnostic for spotting asymmetric exits — e.g. timeout
+    # truncating winners before they reach take_profit while losers
+    # still hit the full stop_loss, which compresses realized R:R toward
+    # 1:1 regardless of how the strategy was configured/labeled.
+    exit_breakdown = {}
+    for reason in {t.exit_reason for t in trades}:
+        reason_trades = [t for t in trades if t.exit_reason == reason]
+        exit_breakdown[reason] = {
+            "count": len(reason_trades),
+            "avg_pnl": sum(t.realized_pnl for t in reason_trades) / len(reason_trades),
+            "avg_pnl_pct": sum(t.realized_pnl_pct for t in reason_trades) / len(reason_trades),
+            "win_rate": sum(1 for t in reason_trades if t.realized_pnl > 0) / len(reason_trades),
+        }
+
     return {
         "total_return": total_return,
         "sharpe_ratio": sharpe,
@@ -78,6 +94,7 @@ def compute_metrics(portfolio: VirtualPortfolio, periods_per_year: int = 8760) -
         "cash": portfolio.cash,
         "equity": last_equity,
         "num_open_positions": len(portfolio.open_positions),
+        "exit_breakdown": exit_breakdown,
     }
 
 
@@ -100,4 +117,10 @@ def print_summary(portfolio: VirtualPortfolio, periods_per_year: int = 8760) -> 
     print(f"Win Rate:          {win_rate:.2%}" if pd.notna(win_rate) else "Win Rate:          n/a")
     print(f"Profit Factor:     {m['profit_factor']:.2f}" if pd.notna(m["profit_factor"]) else "Profit Factor:     n/a")
     print(f"Realized PnL:      {m['realized_pnl']:.2f}")
+    if m["exit_breakdown"]:
+        print("-" * 50)
+        print("Exit reason breakdown:")
+        for reason, stats in sorted(m["exit_breakdown"].items(), key=lambda kv: -kv[1]["count"]):
+            print(f"  {reason:14s} n={stats['count']:<5d} avg_pnl={stats['avg_pnl']:+.2f} "
+                  f"avg_pnl_pct={stats['avg_pnl_pct']:+.3%} win_rate={stats['win_rate']:.1%}")
     print("=" * 50)

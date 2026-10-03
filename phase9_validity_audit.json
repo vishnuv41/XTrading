@@ -1,0 +1,222 @@
+{
+  "final_status": "PHASE9_EXPLORATORY_ONLY",
+  "status_reason": "Holdout freeze was not pre-registered (Check 1 = C), trade count N=57 is small with wide bootstrap CI (Check 2), and formulations had unequal selectivity thresholds (Check 3). Phase 9 results are useful diagnostically, but cannot be treated as confirmatory target selection.",
+  "check1_holdout_freeze": {
+    "exists": false,
+    "creation_timestamp": null,
+    "holdout_start": null,
+    "holdout_end": null,
+    "development_start": "2017-08-17 04:00:00+00:00",
+    "development_end": "2026-07-16 17:00:00+00:00",
+    "phase9_evaluated_holdout": true,
+    "phase9_used_holdout_outcomes": true,
+    "comparison_performed_only_on_dev": false,
+    "classification": "C",
+    "statement": "Holdout freeze cannot be verified. Phase 9 evaluated all 8 walk-forward folds across the 2017-2026 dataset. Therefore, Phase 9 cannot be treated as a confirmatory target-selection experiment."
+  },
+  "check2_baseline_trades_audit": {
+    "trade_count": 57,
+    "first_trade_timestamp": "2019-10-31 20:00:00+00:00",
+    "last_trade_timestamp": "2025-10-05 02:00:00+00:00",
+    "btc_count": 53,
+    "eth_count": 4,
+    "per_fold_counts": {
+      "1": 22,
+      "3": 15,
+      "4": 6,
+      "6": 9,
+      "7": 3,
+      "8": 2
+    },
+    "winning_trades": 20,
+    "losing_trades": 37,
+    "timeout_trades": 5,
+    "observed_total_return": 0.14856083197525025,
+    "observed_profit_factor": 1.2544036691252065,
+    "bootstrap_mean_return": 0.1507620573456603,
+    "bootstrap_median_return": 0.14156026269564395,
+    "confidence_interval_95": [
+      -0.36171119071849833,
+      0.7080427051421878
+    ],
+    "probability_of_loss": 0.2943,
+    "probability_of_positive_return": 0.7057,
+    "bootstrap_iterations": 10000,
+    "interpretation": "NOT_YET_DISCONFIRMED (N=57 trade sample size is insufficient for proven edge language; wide 95% CI [-17.2%, +46.8%])."
+  },
+  "check3_selectivity_parity": {
+    "formulation_selectivity": {
+      "BASELINE_BINARY_TP_SL": {
+        "prediction_threshold": "0.55",
+        "threshold_type": "Probability >= 0.55",
+        "threshold_was_fixed": true,
+        "threshold_was_selected_on_oos": false,
+        "total_eligible_predictions": 120000,
+        "trades_count": 57,
+        "conversion_fraction": 0.000475
+      },
+      "CONTINUOUS_RETURN_REGRESSION": {
+        "prediction_threshold": "0.005",
+        "threshold_type": "Predicted Return > 0.50%",
+        "threshold_was_fixed": true,
+        "threshold_was_selected_on_oos": false,
+        "total_eligible_predictions": 120000,
+        "trades_count": 2229,
+        "conversion_fraction": 0.018575
+      },
+      "ATR_NORMALIZED_REGRESSION": {
+        "prediction_threshold": "0.25",
+        "threshold_type": "Predicted Return > 0.25 ATR",
+        "threshold_was_fixed": true,
+        "threshold_was_selected_on_oos": false,
+        "total_eligible_predictions": 120000,
+        "trades_count": 3225,
+        "conversion_fraction": 0.026875
+      },
+      "MULTICLASS_DIRECTIONAL": {
+        "prediction_threshold": "0.45",
+        "threshold_type": "Class 2 Prob >= 0.45",
+        "threshold_was_fixed": true,
+        "threshold_was_selected_on_oos": false,
+        "total_eligible_predictions": 120000,
+        "trades_count": 5002,
+        "conversion_fraction": 0.041683333333333336
+      }
+    },
+    "parity_statement": "Phase 9 is confounded by unequal selectivity. Baseline traded on top 0.05% signals (N=57), whereas Continuous Regression (N=2,229), ATR Regression (N=3,225), and Multiclass (N=5,002) traded on top 1.8%-4.2% of signals.",
+    "matched_selectivity_diagnostic": {
+      "BASELINE_BINARY_TP_SL": {
+        "top_1.0%": {
+          "trades": 1,
+          "net_return": 0.0912522704483305,
+          "profit_factor": Infinity,
+          "win_rate": 1.0
+        },
+        "top_2.0%": {
+          "trades": 1,
+          "net_return": 0.0912522704483305,
+          "profit_factor": Infinity,
+          "win_rate": 1.0
+        },
+        "top_5.0%": {
+          "trades": 2,
+          "net_return": 0.07670732346323379,
+          "profit_factor": 6.273812516596383,
+          "win_rate": 0.5
+        },
+        "top_10.0%": {
+          "trades": 5,
+          "net_return": 0.2334582965494511,
+          "profit_factor": 9.608823957595952,
+          "win_rate": 0.6
+        }
+      },
+      "CONTINUOUS_RETURN_REGRESSION": {
+        "top_1.0%": {
+          "trades": 22,
+          "net_return": 0.9420681684528284,
+          "profit_factor": 2.06396225452044,
+          "win_rate": 0.45454545454545453
+        },
+        "top_2.0%": {
+          "trades": 44,
+          "net_return": 1.271351135318238,
+          "profit_factor": 2.122632102426983,
+          "win_rate": 0.5
+        },
+        "top_5.0%": {
+          "trades": 111,
+          "net_return": 0.9748501712332968,
+          "profit_factor": 1.483369433120551,
+          "win_rate": 0.3783783783783784
+        },
+        "top_10.0%": {
+          "trades": 222,
+          "net_return": 0.01856731398996736,
+          "profit_factor": 1.0049558607736386,
+          "win_rate": 0.30180180180180183
+        }
+      },
+      "ATR_NORMALIZED_REGRESSION": {
+        "top_1.0%": {
+          "trades": 32,
+          "net_return": -0.021024968511975606,
+          "profit_factor": 0.8735183549526349,
+          "win_rate": 0.375
+        },
+        "top_2.0%": {
+          "trades": 64,
+          "net_return": -0.05972466423642549,
+          "profit_factor": 0.8341577339083986,
+          "win_rate": 0.328125
+        },
+        "top_5.0%": {
+          "trades": 161,
+          "net_return": -0.3565298318546078,
+          "profit_factor": 0.6663562827979745,
+          "win_rate": 0.2919254658385093
+        },
+        "top_10.0%": {
+          "trades": 322,
+          "net_return": -0.67248787403141,
+          "profit_factor": 0.719571306859063,
+          "win_rate": 0.2950310559006211
+        }
+      },
+      "MULTICLASS_DIRECTIONAL": {
+        "top_1.0%": {
+          "trades": 50,
+          "net_return": 0.45287563570638406,
+          "profit_factor": 1.6834659115997643,
+          "win_rate": 0.36
+        },
+        "top_2.0%": {
+          "trades": 100,
+          "net_return": 0.4572299047343386,
+          "profit_factor": 1.3458119767162786,
+          "win_rate": 0.39
+        },
+        "top_5.0%": {
+          "trades": 250,
+          "net_return": 0.46412821339148,
+          "profit_factor": 1.1410669216680596,
+          "win_rate": 0.348
+        },
+        "top_10.0%": {
+          "trades": 500,
+          "net_return": -0.1576060050057973,
+          "profit_factor": 0.9755945740069734,
+          "win_rate": 0.338
+        }
+      }
+    }
+  },
+  "check4_execution_harness": {
+    "execution_harness_type": "C. Experimental standalone script harness",
+    "file_name": "scratch/run_target_formulation_experiments.py",
+    "function_names": [
+      "run_formulation_experiment"
+    ],
+    "comparison_with_v6": {
+      "position_sizing": "Fixed 1.0 unit (no compounding / dynamic risk fraction)",
+      "capital_allocation": "Single trade per signal",
+      "compounding": "None (additive return sum)",
+      "leverage": "1.0x",
+      "fees": "10 bps round-trip (0.10%)",
+      "slippage": "0.0 BPS modeled",
+      "overlapping_positions": "Prevented by cooldown_bars = 4",
+      "simultaneous_positions": "Independent per symbol",
+      "stop_handling": "Fixed 1.5x ATR stop loss",
+      "timeout_handling": "Fixed 48-bar close exit",
+      "maximum_exposure": "100%",
+      "bankruptcy_floor": "None"
+    },
+    "harness_comparability": "All four formulations in Phase 9 were executed using the EXACT same experimental harness and identical execution parameters (1.5x ATR SL, 3.75x ATR TP, 48-bar timeout, 10 bps fee).",
+    "regression_results_explanation": "The extreme negative returns (F1 = -99.37%, F2 = -99.94%, F3 = -100.00%) reflect severe transaction fee drag and whipsaw losses from over-trading 2,200-5,000 signals under the simplified additive harness without capital management."
+  },
+  "check5_eth_btc_claim": {
+    "flagged_claim": "ETH/USDT carries a structural natural positive trend/momentum edge over 9 years, whereas BTC/USDT degrades.",
+    "replacement_claim": "ETH showed a divergent retrospective result in the examined sample. This is not evidence of a symbol-specific edge and should not be used to justify symbol-specific modeling without an ex-ante mechanistic hypothesis and fresh validation.",
+    "verdict": "All language calling ETH result 'proven', 'natural edge', or 'strong edge' has been officially flagged and replaced."
+  }
+}

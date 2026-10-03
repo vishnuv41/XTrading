@@ -49,5 +49,31 @@ class PaperTradingConfig:
     # match the timeframe being traded (e.g. 1h crypto ~ 24*365).
     periods_per_year: int = int(os.getenv("PAPER_PERIODS_PER_YEAR", "8760"))
 
+    # Margin multiplier: cash required to OPEN a position of a given
+    # notional value is notional / leverage, not the full notional.
+    # Matters because risk_engine.position_size sizes positions from
+    # risk_pct-of-equity and stop distance alone — for a tight stop
+    # (e.g. 1% away) at 1% risk, that formula lands on notional roughly
+    # equal to equity itself, which is the correct sizing for a
+    # margined/futures account but will constantly reject as
+    # "insufficient cash" against a plain spot-cash account. Set to 1.0
+    # for a true cash/spot account (positions capped at what cash can
+    # actually buy outright); set higher (e.g. 5.0, 10.0) to model a
+    # margined or futures account matching how the sizing formula
+    # already assumes capital is used. Default of 3.0 is a moderate
+    # middle ground — override via env for either extreme.
+    leverage: float = float(os.getenv("PAPER_LEVERAGE", "3.0"))
+
+    # Trail the stop-loss using the Supertrend line (risk_engine.stoploss.
+    # calculate_supertrend_stop) once a position is open, instead of
+    # leaving the entry-time ATR-based stop fixed for the trade's whole
+    # life. Only ever TIGHTENS the stop (moves it in the trade's favor),
+    # never loosens it — see paper_trading.exit_manager.update_trailing_stop.
+    # Off by default: this changes exit behavior for anything already
+    # tuned against a fixed stop (backtests, the confidence-threshold
+    # sweep), so turning it on is a deliberate choice, not a silent
+    # default change.
+    enable_trailing_stop: bool = _env_bool("PAPER_ENABLE_TRAILING_STOP", False)
+
 
 settings = PaperTradingConfig()

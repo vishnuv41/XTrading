@@ -11,6 +11,7 @@ entire "exchange" as far as the rest of the system is concerned.
 from __future__ import annotations
 
 import logging
+import math
 from datetime import datetime
 from typing import Optional
 
@@ -40,6 +41,17 @@ def _apply_slippage(price: float, side: str, direction: str) -> float:
 
 def _fee(notional: float) -> float:
     return abs(notional) * (pt_settings.fee_bps / 10_000)
+
+
+def _invalid(x) -> bool:
+    """True for None or NaN. `not x` alone is NOT sufficient — NaN is
+    truthy, so `not float('nan')` is False and NaN silently passes a
+    plain falsy check. A NaN stop_loss/take_profit that reaches
+    OpenPosition disables exit_manager's SL/TP comparisons permanently
+    (NaN comparisons are always False), leaving the position with no
+    loss bound until timeout — this guard exists specifically to stop
+    that from ever happening."""
+    return x is None or (isinstance(x, (int, float)) and math.isnan(x))
 
 
 class ExecutionSimulator:
@@ -82,13 +94,37 @@ class ExecutionSimulator:
         risk_pct = risk.get("risk_pct")
         entry_price_ref = risk.get("entry_price")  # caller passes the pipeline's `entry`
 
-        if stop_loss is None or take_profit is None or not position_size:
-            logger.debug("Skipping %s %s: risk engine did not produce sizing (likely blocked).",
-                         prediction, symbol)
+        if (_invalid(stop_loss) or _invalid(take_profit) or _invalid(position_size)
+                or _invalid(entry_price_ref) or not position_size or position_size <= 0):
+            logger.debug("Skipping %s %s: risk engine did not produce valid sizing "
+                         "(missing, blocked, or NaN — e.g. from a bad OHLCV row or "
+                         "indicator warm-up).", prediction, symbol)
             return None
 
         side = "long" if prediction == "BUY" else "short"
         fill_price = _apply_slippage(entry_price_ref, side, "entry")
+
+        # Clamp size to what the account can actually margin, rather than
+        # dropping the trade outright — the risk engine's risk_pct/stop-
+        # distance formula can size a trade at ~100% of equity notional
+        # on a tight stop even at 1% risk (that's correct for a margined
+        # account; see paper_trading.config's `leverage` docstring), so
+        # rejecting on the first cash shortfall would silently skip a
+        # large fraction of otherwise-valid signals as equity drifts
+        # down from fees/losses. Only skip if even a minimal size can't
+        # be afforded (dust cash left).
+        fee_rate = pt_settings.fee_bps / 10_000
+        cash_per_unit = fill_price * (1 / pt_settings.leverage + fee_rate)
+        max_affordable_size = (portfolio.cash * 0.999) / cash_per_unit if cash_per_unit > 0 else 0.0
+        if max_affordable_size <= 0:
+            logger.debug("Skipping %s %s: no cash available (%.2f).", prediction, symbol, portfolio.cash)
+            return None
+        if position_size > max_affordable_size:
+            logger.info("Clamping %s %s size %.6f -> %.6f (leverage=%.1fx, cash=%.2f).",
+                       prediction, symbol, position_size, max_affordable_size,
+                       pt_settings.leverage, portfolio.cash)
+            position_size = max_affordable_size
+
         notional = position_size * fill_price
         fee = _fee(notional)
 
@@ -96,7 +132,7 @@ class ExecutionSimulator:
             exchange=self.exchange, symbol=symbol, timeframe=timeframe, side=side,
             entry_ts=ts, entry_price=fill_price, size=position_size,
             stop_loss=stop_loss, take_profit=take_profit,
-            risk_pct=risk_pct or 0.0, entry_fee=fee,
+            risk_pct=risk_pct or 0.0, entry_fee=fee, leverage=pt_settings.leverage,
         )
 
         try:

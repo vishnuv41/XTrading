@@ -53,7 +53,7 @@ async def with_retry(coro_fn, *args, retries: int = len(_RETRY_DELAYS), **kwargs
     for attempt in range(retries + 1):
         try:
             return await coro_fn(*args, **kwargs)
-        except (ccxtpro.NetworkError, ccxtpro.ExchangeNotAvailable, ccxtpro.RequestTimeout) as exc:
+        except (ccxtpro.NetworkError, ccxtpro.ExchangeNotAvailable, ccxtpro.RequestTimeout, ccxtpro.DDoSProtection, ccxtpro.RateLimitExceeded) as exc:
             last_exc = exc
             if attempt >= retries:
                 break

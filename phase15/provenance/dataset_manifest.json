@@ -1,0 +1,15 @@
+{
+  "manifest_version": "1.0.0",
+  "created_at": "2026-09-10T12:18:15.444580+00:00",
+  "dataset_name": "Phase 15 Point-in-Time Causal Market Snapshot Dataset v1",
+  "symbols": [
+    "BTC/USDT",
+    "ETH/USDT"
+  ],
+  "timeframe": "1h",
+  "source": "PostgreSQL historical database loader",
+  "leakage_audited": true,
+  "audit_script": "phase15/audit/leakage_auditor.py",
+  "causal_boundary": "t_context <= T_candle_close",
+  "zero_prospective_leakage": "Enforced (2026 Phase 13 live prospective trade outcomes excluded from tuning)"
+}

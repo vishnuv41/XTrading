@@ -79,9 +79,18 @@ async def backfill_symbol(
         if not candles:
             break
 
+        now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+        cutoff_ms = min(until_ms, now_ms)
+
+        # Enforce strict closed-candle rule: reject candles that are still forming
+        closed_candles = [c for c in candles if c[0] + step_ms <= cutoff_ms]
+        if not closed_candles:
+            logger.info("%s %s: all remaining candles in batch are forming/incomplete. Backfill complete.", symbol, timeframe)
+            break
+
         rows = [
             _row_from_candle(exchange.name, symbol, timeframe, candle)
-            for candle in candles
+            for candle in closed_candles
         ]
 
         rows = clean_ohlcv(rows)

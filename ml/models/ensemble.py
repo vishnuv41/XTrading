@@ -31,7 +31,10 @@ class EnsembleModel:
         """
         self.base_models = base_models
         self.blend_method = blend_method
-        self.meta_learner = meta_learner or LogisticRegression(max_iter=1000)
+        self.meta_learner = meta_learner or LogisticRegression(
+    max_iter=1000,
+    class_weight="balanced",
+)
         self.fitted_base_models_ = {}
         self.classes_ = None
 

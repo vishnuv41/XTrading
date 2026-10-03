@@ -42,6 +42,7 @@ from .portfolio_risk import (
     calculate_return_correlation, get_correlated_symbols,
     calculate_portfolio_heat, check_new_trade_allowed,
 )
+from .protections import TradeOutcome, check_protections, consecutive_loss_cooldown_active, max_trades_per_day_exceeded
 
 __all__ = [
     "calculate_stop_loss", "calculate_stop_loss_series", "calculate_supertrend_stop",
@@ -50,4 +51,5 @@ __all__ = [
     "calculate_kelly_fraction", "calculate_fixed_fractional_size", "calculate_adjusted_position_size",
     "calculate_return_correlation", "get_correlated_symbols",
     "calculate_portfolio_heat", "check_new_trade_allowed",
+    "TradeOutcome", "check_protections", "consecutive_loss_cooldown_active", "max_trades_per_day_exceeded",
 ]

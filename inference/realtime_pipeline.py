@@ -24,6 +24,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 
 from indicators import calculate_all_indicators
@@ -35,6 +36,7 @@ from risk_engine.takeprofit import calculate_take_profit
 from risk_engine.risk_reward import calculate_risk_reward, meets_minimum_risk_reward
 from risk_engine.position_size import calculate_adjusted_position_size
 from risk_engine.portfolio_risk import calculate_portfolio_heat, check_new_trade_allowed
+from risk_engine.protections import check_protections
 
 from ml.utils.preprocessing import build_feature_matrix
 from ml.predict import predict
@@ -102,12 +104,29 @@ def _apply_risk_engine(
     open_positions: list[dict],
     daily_pnl_pct: float,
     correlation_matrix,
+    recent_trades: Optional[list] = None,
+    current_time=None,
+    bar_duration=None,
 ) -> tuple[str, dict]:
     """
     Runs the ML-confirmed signal through the full risk engine: stop/target
     placement, minimum R:R, position sizing, and the portfolio-level gates
     (max open trades, daily loss circuit breaker, portfolio heat /
-    correlation cap).
+    correlation cap, consecutive-loss cooldown, max trades/day).
+
+    Args (new):
+        recent_trades: this symbol's recent closed trades as
+            risk_engine.protections.TradeOutcome (or objects with the
+            same .closed_at/.pnl attributes), oldest -> newest. None
+            (default) skips the consecutive-loss/max-trades-per-day
+            checks entirely — existing callers that don't have trade
+            history handy (e.g. a stateless prediction-only call) are
+            unaffected.
+        current_time: the bar being evaluated (datetime). Required if
+            recent_trades is passed.
+        bar_duration: this timeframe's bar length (datetime.timedelta),
+            e.g. timedelta(hours=1) for '1h'. Required if recent_trades
+            is passed.
 
     Returns (possibly-downgraded prediction, risk info dict). Any gate
     failure downgrades `prediction` to "HOLD" and sets block_reason.
@@ -118,6 +137,20 @@ def _apply_risk_engine(
     if side is None:
         return prediction, risk
 
+    # --- Circuit breaker: account equity depleted ---------------------------
+    # Must run BEFORE any sizing math. A leveraged account mid-loss-streak
+    # can hit zero/negative equity between bars (margin tied up + a small
+    # further adverse move) without ever tripping the daily-loss-% breaker
+    # below (that breaker resets every day; a multi-day drawdown can still
+    # bottom out equity while staying "compliant" day-by-day). Without this
+    # check, calculate_fixed_fractional_size's ValueError on non-positive
+    # equity propagates all the way up and kills the replay/live loop —
+    # equity depletion should be a blocked trade, never an unhandled crash.
+    if account_equity <= 0:
+        risk["block_reason"] = f"Account equity depleted ({account_equity:.2f} <= 0); no new trades."
+        logger.error(risk["block_reason"])
+        return "HOLD", risk
+
     # --- Circuit breaker: daily loss limit -------------------------------
     if daily_pnl_pct <= -settings.risk.max_daily_loss_pct:
         risk["block_reason"] = (
@@ -126,6 +159,21 @@ def _apply_risk_engine(
         )
         logger.warning(risk["block_reason"])
         return "HOLD", risk
+
+    # --- Consecutive-loss cooldown / max trades per day --------------------
+    if recent_trades is not None and current_time is not None and bar_duration is not None:
+        blocked, reason = check_protections(
+            recent_trades=recent_trades,
+            current_time=current_time,
+            max_consecutive_losses=settings.risk.max_consecutive_losses,
+            cooldown_bars=settings.risk.cooldown_bars,
+            bar_duration=bar_duration,
+            max_trades_per_day=settings.risk.max_trades_per_day,
+        )
+        if blocked:
+            risk["block_reason"] = reason
+            logger.warning(reason)
+            return "HOLD", risk
 
     # --- Max concurrent open trades ---------------------------------------
     if len(open_positions) >= settings.risk.max_open_trades:
@@ -200,6 +248,8 @@ def run_realtime_pipeline(
     open_positions: Optional[list[dict]] = None,
     daily_pnl_pct: float = 0.0,
     correlation_matrix=None,
+    recent_trades: Optional[list] = None,
+    bar_duration=None,
 ):
     """
     New risk-engine-related args:
@@ -215,6 +265,13 @@ def run_realtime_pipeline(
             risk_engine.portfolio_risk.calculate_return_correlation, used
             for the correlated-position cap. If None, only the portfolio
             heat cap is enforced.
+        recent_trades: This symbol's recent closed trades (oldest ->
+            newest; see risk_engine.protections.TradeOutcome) for the
+            consecutive-loss cooldown / max-trades-per-day checks. None
+            (default) skips those checks — pass this from
+            paper_trading/live callers that track trade history.
+        bar_duration: This timeframe's bar length (datetime.timedelta).
+            Required together with recent_trades for the checks above.
     """
     logger.info("Starting realtime inference pipeline...")
 
@@ -225,7 +282,13 @@ def run_realtime_pipeline(
     df = calculate_all_indicators(df)
 
     # Step 2: Market Regime
-    df = calculate_market_state(df)
+    # latest_only=True: this pipeline only ever reads the LAST row
+    # (see _extract_market_state and predictions.iloc[-1] below), so
+    # skip the expensive full-history Hurst rolling computation and
+    # only compute it for the row that actually drives the prediction.
+    # See regime/trend_regime.py's latest_only docstring for why this
+    # doesn't create a train/inference skew.
+    df = calculate_market_state(df, latest_only=True)
     market_state = _extract_market_state(df)
 
     # Step 3: Strategy (rule-based signal, kept for the explanation panel —
@@ -257,20 +320,45 @@ def run_realtime_pipeline(
 
     logger.info(f"Prediction={prediction} Confidence={confidence:.3f}")
 
-    if confidence < settings.ml.confidence_threshold:
-        logger.info(f"Confidence {confidence:.3f} below threshold {settings.ml.confidence_threshold:.2f}.")
-        prediction = "HOLD"
+    # Phase 13 Percentile Rank Gate (Historical Phase 10 / Phase 12 top 1.0% cutoff)
+    if getattr(settings.ml, "use_percentile_gating", True):
+        pred_series = predictions["confidence"].dropna().to_numpy(dtype=float)
+        n_samples = len(pred_series)
+        top_pct = getattr(settings.ml, "percentile_cutoff_pct", 1.0)
+        
+        if n_samples >= 10:
+            top_k_count = max(1, int(n_samples * (top_pct / 100.0)))
+            top_k_cutoff = float(np.partition(pred_series, -top_k_count)[-top_k_count])
+            gate_pass = bool(confidence >= top_k_cutoff)
+            percentile = float((np.sum(pred_series <= confidence) / n_samples) * 100.0)
+            
+            logger.info(
+                f"Rank Gate: symbol={symbol} prediction={confidence:.6f} "
+                f"percentile={percentile:.2f}% cutoff={top_k_cutoff:.6f} "
+                f"gate_pass={gate_pass}"
+            )
+            if not gate_pass:
+                prediction = "HOLD"
+        else:
+            logger.warning(f"Insufficient history for rank gate (n={n_samples} < 10); falling back to HOLD.")
+            prediction = "HOLD"
+    else:
+        if confidence < settings.ml.confidence_threshold:
+            logger.info(f"Confidence {confidence:.3f} below threshold {settings.ml.confidence_threshold:.2f}.")
+            prediction = "HOLD"
 
     # Step 6: Risk Engine
     entry_price = float(latest["close"])
     atr = float(latest["ATR14"])
     vol_regime = market_state["volatility"]
 
+    current_time = latest["timestamp"] if "timestamp" in latest.index else None
     prediction, risk = _apply_risk_engine(
         prediction=prediction, entry_price=entry_price, atr=atr, confidence=confidence,
         vol_regime=vol_regime, symbol=symbol, account_equity=account_equity,
         open_positions=open_positions, daily_pnl_pct=daily_pnl_pct,
         correlation_matrix=correlation_matrix,
+        recent_trades=recent_trades, current_time=current_time, bar_duration=bar_duration,
     )
 
     # Step 7: Explanation Engine

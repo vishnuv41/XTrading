@@ -72,16 +72,19 @@ CREATE TABLE IF NOT EXISTS ingestion_state (
     PRIMARY KEY (exchange, symbol, timeframe)
 );
 
--- ============================================================
--- Paper Trading Tables
--- ============================================================
+-- ---------------------------------------------------------------------
+-- Paper trading engine (see paper_trading/db_logger.py and
+-- database/migrations/002_paper_trading.sql for the migration this
+-- mirrors on a fresh database).
+-- ---------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS prediction_log (
     id              BIGSERIAL PRIMARY KEY,
     exchange        TEXT        NOT NULL,
     symbol          TEXT        NOT NULL,
     timeframe       TEXT        NOT NULL,
-    ts              TIMESTAMPTZ NOT NULL,      -- bar timestamp the prediction was made on
-    prediction      TEXT        NOT NULL,      -- 'BUY' | 'SELL' | 'HOLD'
+    ts              TIMESTAMPTZ NOT NULL,
+    prediction      TEXT        NOT NULL,
     confidence      DOUBLE PRECISION,
     prob_down       DOUBLE PRECISION,
     prob_flat       DOUBLE PRECISION,
@@ -96,8 +99,8 @@ CREATE TABLE IF NOT EXISTS prediction_log (
     position_size   DOUBLE PRECISION,
     risk_pct        DOUBLE PRECISION,
     notional_value  DOUBLE PRECISION,
-    risk_block_reason TEXT,                    -- non-null when risk engine downgraded to HOLD
-    executed        BOOLEAN     NOT NULL DEFAULT FALSE,  -- did this prediction actually result in a trade_log OPEN row
+    risk_block_reason TEXT,
+    executed        BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (exchange, symbol, timeframe, ts)
 );
@@ -107,22 +110,22 @@ CREATE INDEX IF NOT EXISTS idx_prediction_log_symbol_tf_ts
 
 CREATE TABLE IF NOT EXISTS trade_log (
     id              BIGSERIAL PRIMARY KEY,
-    trade_id        TEXT        NOT NULL,      -- uuid4, shared by the OPEN/CLOSE pair
+    trade_id        TEXT        NOT NULL,
     exchange        TEXT        NOT NULL,
     symbol          TEXT        NOT NULL,
     timeframe       TEXT        NOT NULL,
-    side            TEXT        NOT NULL,      -- 'long' | 'short'
-    action          TEXT        NOT NULL,      -- 'OPEN' | 'CLOSE'
-    ts              TIMESTAMPTZ NOT NULL,      -- bar timestamp of this event
-    price           DOUBLE PRECISION NOT NULL, -- fill price, after simulated slippage
-    size            DOUBLE PRECISION NOT NULL, -- position size in asset units
-    fee             DOUBLE PRECISION NOT NULL, -- fee paid on this fill (quote currency)
+    side            TEXT        NOT NULL,
+    action          TEXT        NOT NULL,
+    ts              TIMESTAMPTZ NOT NULL,
+    price           DOUBLE PRECISION NOT NULL,
+    size            DOUBLE PRECISION NOT NULL,
+    fee             DOUBLE PRECISION NOT NULL,
     stop_loss       DOUBLE PRECISION,
     take_profit     DOUBLE PRECISION,
-    exit_reason     TEXT,                      -- NULL on OPEN; 'stop_loss'|'take_profit'|'timeout'|'signal_flip' on CLOSE
-    realized_pnl    DOUBLE PRECISION,           -- NULL on OPEN
-    realized_pnl_pct DOUBLE PRECISION,          -- NULL on OPEN
-    bars_held       INTEGER,                    -- NULL on OPEN
+    exit_reason     TEXT,
+    realized_pnl    DOUBLE PRECISION,
+    realized_pnl_pct DOUBLE PRECISION,
+    bars_held       INTEGER,
     cash_after      DOUBLE PRECISION NOT NULL,
     equity_after    DOUBLE PRECISION NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
