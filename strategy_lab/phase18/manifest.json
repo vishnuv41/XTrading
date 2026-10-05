@@ -1,0 +1,113 @@
+{
+  "phase": "Phase 18 — Isolated Alpha Feature Research",
+  "version": "1.0.0",
+  "created_at": "2026-10-05T12:00:00Z",
+  "firewall_rule": "STRICT_ISOLATION: Phase 18 operates exclusively on frozen historical data up to 2026-09-30 23:59:59 UTC. No feedback or observation from Phase 17 forward ledger is permitted.",
+  "universe": [
+    "BTC/USDT",
+    "ETH/USDT",
+    "BNB/USDT",
+    "XRP/USDT",
+    "ADA/USDT",
+    "LTC/USDT",
+    "SOL/USDT",
+    "DOGE/USDT",
+    "LINK/USDT"
+  ],
+  "timeframes": {
+    "primary": "1d",
+    "secondary": "4h"
+  },
+  "dataset_boundaries": {
+    "development_start": "2020-01-01 00:00:00+00:00",
+    "development_end": "2024-12-31 23:59:59+00:00",
+    "holdout_start": "2025-01-01 00:00:00+00:00",
+    "holdout_end": "2026-09-30 23:59:59+00:00",
+    "out_of_time_start": "2018-01-01 00:00:00+00:00",
+    "out_of_time_end": "2019-12-31 23:59:59+00:00"
+  },
+  "execution_and_friction": {
+    "canonical_roundtrip_friction_bps": 30.0,
+    "sensitivity_scenarios_bps": [15.0, 30.0, 45.0],
+    "execution_timing": "SIGNAL_ON_BAR_CLOSE_FILL_AT_NEXT_OPEN",
+    "slippage_model": "FIXED_BPS_PER_SIDE"
+  },
+  "benchmark_reference": {
+    "baseline_strategy": "Trend_EMA_50",
+    "rebalance_frequency": "DAILY",
+    "weighting": "EQUAL_WEIGHT_LONG_CASH"
+  },
+  "hypotheses": {
+    "H18_A_Funding": {
+      "description": "Continuous 8h perpetual funding-rate information provides incremental predictive or risk-adjusted value beyond Trend_EMA_50 after 30 bps friction.",
+      "features": ["funding_rate_8h_zscore_30d", "funding_rate_8h_rolling_mean_7d"],
+      "parameter_grid": {
+        "zscore_lookback_days": [14, 30],
+        "funding_overlay_weights": [0.25, 0.50]
+      }
+    },
+    "H18_B_RelativeStrength": {
+      "description": "Allocating capital into the top K assets ranked by lookback momentum L beats equal-weighted Trend_EMA_50 net of rebalance turnover costs.",
+      "features": ["relative_strength_vs_btc", "cross_asset_momentum_rank"],
+      "parameter_grid": {
+        "top_k_assets": [2, 3],
+        "lookback_window_days": [14, 30],
+        "rebalance_interval_days": [1, 7]
+      }
+    },
+    "H18_C_VolatilityCompression": {
+      "description": "Filtering trend entries on pre-breakout volatility compression (historical ATR/Bandwidth percentile < 20th) improves post-entry risk-adjusted returns.",
+      "features": ["bb_bandwidth_percentile_60d", "atr_ratio_14_to_60d"],
+      "parameter_grid": {
+        "compression_percentile_cutoff": 20.0,
+        "compression_lookback_days": [30, 60]
+      }
+    }
+  },
+  "acceptance_gates": {
+    "gate_1_incremental_net_return": {
+      "metric": "delta_net_annualized_return",
+      "operator": ">",
+      "threshold": 0.0,
+      "description": "Strategy net annualized return must strictly exceed Trend_EMA_50 baseline after canonical 30 bps friction."
+    },
+    "gate_2_incremental_sharpe": {
+      "metric": "delta_net_sharpe",
+      "operator": ">=",
+      "threshold": 0.20,
+      "description": "Net Sharpe ratio lift over Trend_EMA_50 must be at least +0.20."
+    },
+    "gate_3_paired_bootstrap_ci": {
+      "metric": "bootstrap_95pct_ci_lower_bound",
+      "operator": ">",
+      "threshold": 0.0,
+      "n_bootstraps": 10000,
+      "seed": 42,
+      "description": "Paired bootstrap 95% confidence interval lower bound for delta Sharpe must be strictly greater than zero."
+    },
+    "gate_4_friction_robustness": {
+      "metric": "net_sharpe_at_45bps",
+      "operator": ">",
+      "threshold": 0.0,
+      "description": "Strategy must maintain positive Net Sharpe even under severe 45.0 bps friction."
+    },
+    "gate_5_turnover_efficiency": {
+      "metric": "turnover_drag_to_gross_alpha_ratio",
+      "formula": "turnover_cost_annualized / gross_excess_return_annualized",
+      "operator": "<=",
+      "threshold": 0.50,
+      "description": "Annualized friction drag must not consume more than 50% of gross excess alpha."
+    },
+    "gate_6_regime_stability": {
+      "min_annual_sharpe": 0.0,
+      "max_annual_drawdown_pct": 50.0,
+      "min_annual_net_return_pct": -25.0,
+      "description": "No single calendar year may have Sharpe < 0.0, Max Drawdown > 50.0%, or Net Return < -25.0%."
+    }
+  },
+  "reproducibility": {
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "bootstrap_iterations": 10000
+  }
+}
