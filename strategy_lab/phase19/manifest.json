@@ -1,0 +1,49 @@
+{
+  "phase": "Phase 19 — Causal Market Regime Classifier",
+  "version": "1.0.0",
+  "created_at": "2026-10-05T12:50:00Z",
+  "firewall_rule": "STRICT_ISOLATION: Phase 19 operates strictly on historical data up to 2026-09-30 23:59:59 UTC. Phase 17 forward tracker is isolated.",
+  "universe": [
+    "BTC/USDT",
+    "ETH/USDT",
+    "BNB/USDT",
+    "XRP/USDT",
+    "ADA/USDT",
+    "LTC/USDT",
+    "SOL/USDT",
+    "DOGE/USDT",
+    "LINK/USDT"
+  ],
+  "dataset_boundaries": {
+    "development_start": "2020-08-11 00:00:00+00:00",
+    "development_end": "2024-12-31 23:59:59+00:00",
+    "holdout_start": "2025-01-01 00:00:00+00:00",
+    "holdout_end": "2026-09-30 23:59:59+00:00"
+  },
+  "friction_sweep_bps": [0.0, 10.0, 20.0, 30.0, 40.0, 45.0, 50.0],
+  "canonical_friction_bps": 30.0,
+  "baseline_reference": "Trend_EMA_50",
+  "regime_rules": [
+    {
+      "id": "Regime_Breadth_Filter",
+      "description": "Long if Close > EMA50 and 9-Asset Trend Breadth >= 0.30"
+    },
+    {
+      "id": "Regime_Strong_Breadth_Filter",
+      "description": "Long if Close > EMA50 and 9-Asset Trend Breadth >= 0.60"
+    },
+    {
+      "id": "Regime_Composite_Filter",
+      "description": "Long if Close > EMA50 and EMA20 > EMA50 and Breadth >= 0.30 and ATR_Percentile <= 80%"
+    }
+  ],
+  "acceptance_gates": {
+    "min_delta_sharpe": 0.20,
+    "bootstrap_iterations": 10000,
+    "bootstrap_seed": 42,
+    "max_annual_drawdown_pct": 45.0,
+    "min_annual_net_return_pct": -20.0,
+    "min_annual_sharpe": 0.0,
+    "max_turnover_drag_ratio": 0.50
+  }
+}

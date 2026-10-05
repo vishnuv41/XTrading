@@ -1,0 +1,366 @@
+{
+  "experiment": "Phase 19 Causal Market Regime Classifier",
+  "dataset_window": "Development (2020-08-11 to 2024-12-31)",
+  "baseline_metrics_30bps": {
+    "net_annualized_return": 0.9341376343517787,
+    "gross_annualized_return": 1.0188434186137907,
+    "net_sharpe": 1.4841436710827958,
+    "gross_sharpe": 1.5638411233041247,
+    "max_drawdown": -0.5647277796383262,
+    "annualized_turnover": 28.590502909393184,
+    "turnover_drag_annualized": 0.04288575436408978
+  },
+  "results": [
+    {
+      "rule_id": "Regime_Breadth_Filter",
+      "description": "Long if Close > EMA50 and 9-Asset Trend Breadth >= 0.30",
+      "metrics_30bps": {
+        "net_annualized_return": 0.9658473042757632,
+        "gross_annualized_return": 1.0502184264104684,
+        "net_sharpe": 1.5194644853212653,
+        "gross_sharpe": 1.5980025633779036,
+        "max_drawdown": -0.5533108544328631,
+        "annualized_turnover": 28.03387364921031,
+        "turnover_drag_annualized": 0.04205081047381547
+      },
+      "delta_sharpe": 0.035320814238469556,
+      "delta_return": 0.031709669923984496,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.5980025633779036,
+          "net_return_pct": 105.02184264104683,
+          "max_drawdown_pct": 51.01336702529705
+        },
+        "10bps": {
+          "net_sharpe": 1.5718304802872356,
+          "net_return_pct": 102.17045949753624,
+          "max_drawdown_pct": 52.49683933551288
+        },
+        "20bps": {
+          "net_sharpe": 1.5456509561652056,
+          "net_return_pct": 99.35826618191082,
+          "max_drawdown_pct": 53.93563272190358
+        },
+        "30bps": {
+          "net_sharpe": 1.5194644853212653,
+          "net_return_pct": 96.58473042757632,
+          "max_drawdown_pct": 55.33108544328631
+        },
+        "40bps": {
+          "net_sharpe": 1.4932715623015582,
+          "net_return_pct": 93.84932711122633,
+          "max_drawdown_pct": 56.684495894159305
+        },
+        "45bps": {
+          "net_sharpe": 1.480172835824712,
+          "net_return_pct": 92.4957629461694,
+          "max_drawdown_pct": 57.3458304073756
+        },
+        "50bps": {
+          "net_sharpe": 1.46707268184231,
+          "net_return_pct": 91.1515381581206,
+          "max_drawdown_pct": 57.997123785642245
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": 0.035320814238469556,
+        "ci_lower": -0.06181263798477138,
+        "ci_upper": 0.13605625285634645,
+        "p_value_one_tailed": 0.2293
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 0.8597254223288593,
+          "max_drawdown_pct": 24.529087345562193,
+          "net_return_pct": 37.87327730127532,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 3.0856392487321833,
+          "max_drawdown_pct": 41.550009946651514,
+          "net_return_pct": 919.9271975045958,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -1.5387295592290289,
+          "max_drawdown_pct": 40.026409853809334,
+          "net_return_pct": -35.23535786916078,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 1.3314782404834267,
+          "max_drawdown_pct": 30.175846403349276,
+          "net_return_pct": 51.20248104679887,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 1.4812440454063813,
+          "max_drawdown_pct": 30.68276646190557,
+          "net_return_pct": 71.89146978412208,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": 0.031709669923984496,
+          "pass": true
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.035320814238469556,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.06181263798477138,
+          "ci_upper": 0.13605625285634645,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 1.46707268184231,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 1.3402645426041377,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "rule_id": "Regime_Strong_Breadth_Filter",
+      "description": "Long if Close > EMA50 and 9-Asset Trend Breadth >= 0.60",
+      "metrics_30bps": {
+        "net_annualized_return": 0.947065867103491,
+        "gross_annualized_return": 1.0332807098553696,
+        "net_sharpe": 1.5343756592946265,
+        "gross_sharpe": 1.618168264638263,
+        "max_drawdown": -0.4131869141663051,
+        "annualized_turnover": 28.89411886949294,
+        "turnover_drag_annualized": 0.043341178304239406
+      },
+      "delta_sharpe": 0.050231988211830725,
+      "delta_return": 0.012928232751712398,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.618168264638263,
+          "net_return_pct": 103.32807098553695,
+          "max_drawdown_pct": 37.269980949293725
+        },
+        "10bps": {
+          "net_sharpe": 1.5902564442469027,
+          "net_return_pct": 100.41353903912906,
+          "max_drawdown_pct": 38.64920897854361
+        },
+        "20bps": {
+          "net_sharpe": 1.5623251681108978,
+          "net_return_pct": 97.5398980689998,
+          "max_drawdown_pct": 39.9985667693719
+        },
+        "30bps": {
+          "net_sharpe": 1.5343756592946265,
+          "net_return_pct": 94.7065867103491,
+          "max_drawdown_pct": 41.31869141663051
+        },
+        "40bps": {
+          "net_sharpe": 1.5064091426611106,
+          "net_return_pct": 91.91305113699755,
+          "max_drawdown_pct": 42.610206635310526
+        },
+        "45bps": {
+          "net_sharpe": 1.4924198896084964,
+          "net_return_pct": 90.53102823608022,
+          "max_drawdown_pct": 43.24542702950525
+        },
+        "50bps": {
+          "net_sharpe": 1.4784268446042002,
+          "net_return_pct": 89.15874496238645,
+          "max_drawdown_pct": 43.87372303717166
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": 0.050231988211830725,
+        "ci_lower": -0.2108629705872681,
+        "ci_upper": 0.3332153773235642,
+        "p_value_one_tailed": 0.3593
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 0.5519850888490894,
+          "max_drawdown_pct": 23.87184799672153,
+          "net_return_pct": 16.442926987780492,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 3.3116885235253024,
+          "max_drawdown_pct": 32.462210219373894,
+          "net_return_pct": 1099.7091395069692,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -0.6587087532451704,
+          "max_drawdown_pct": 26.140923967864076,
+          "net_return_pct": -15.950884055501858,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 0.8093227998652132,
+          "max_drawdown_pct": 38.62511045448718,
+          "net_return_pct": 24.3829177826536,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 1.0314867487370936,
+          "max_drawdown_pct": 30.99893202445933,
+          "net_return_pct": 40.28611765637926,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": 0.012928232751712398,
+          "pass": true
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.050231988211830725,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.2108629705872681,
+          "ci_upper": 0.3332153773235642,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 1.4784268446042002,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 3.002029783774005,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "rule_id": "Regime_Composite_Filter",
+      "description": "Long if Close > EMA50 and EMA20 > EMA50 and Breadth >= 0.30 and ATR_Percentile <= 80%",
+      "metrics_30bps": {
+        "net_annualized_return": 0.37637342841296495,
+        "gross_annualized_return": 0.42952136928558304,
+        "net_sharpe": 0.9956154693179974,
+        "gross_sharpe": 1.091849050586588,
+        "max_drawdown": -0.462764384495391,
+        "annualized_turnover": 25.301330008312554,
+        "turnover_drag_annualized": 0.037951995012468834
+      },
+      "delta_sharpe": -0.4885282017647984,
+      "delta_return": -0.5577642059388137,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.091849050586588,
+          "net_return_pct": 42.9521369285583,
+          "max_drawdown_pct": 42.91403936272265
+        },
+        "10bps": {
+          "net_sharpe": 1.0597855498268574,
+          "net_return_pct": 41.15835945888442,
+          "max_drawdown_pct": 44.04397625040473
+        },
+        "20bps": {
+          "net_sharpe": 1.0277074278314733,
+          "net_return_pct": 39.386852619676645,
+          "max_drawdown_pct": 45.15170453830031
+        },
+        "30bps": {
+          "net_sharpe": 0.9956154693179974,
+          "net_return_pct": 37.637342841296494,
+          "max_drawdown_pct": 46.2764384495391
+        },
+        "40bps": {
+          "net_sharpe": 0.9635104604234767,
+          "net_return_pct": 35.90955987885736,
+          "max_drawdown_pct": 47.477341811965616
+        },
+        "45bps": {
+          "net_sharpe": 0.9474533081156791,
+          "net_return_pct": 35.05373240135328,
+          "max_drawdown_pct": 48.06775091436853
+        },
+        "50bps": {
+          "net_sharpe": 0.9313931886084633,
+          "net_return_pct": 34.203236772250214,
+          "max_drawdown_pct": 48.651563978274545
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": -0.4885282017647984,
+        "ci_lower": -0.9906139030049731,
+        "ci_upper": -0.03403391418053172,
+        "p_value_one_tailed": 0.9828
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 0.21368851639506561,
+          "max_drawdown_pct": 22.389229057301744,
+          "net_return_pct": 1.5971585569648061,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 2.5002318420117904,
+          "max_drawdown_pct": 22.42394274579811,
+          "net_return_pct": 354.8316700455663,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -1.442653253088116,
+          "max_drawdown_pct": 24.513237998394782,
+          "net_return_pct": -20.777255491947276,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 0.6072433506049946,
+          "max_drawdown_pct": 25.823218594845347,
+          "net_return_pct": 12.024533697337937,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 0.14519047335467167,
+          "max_drawdown_pct": 28.29322099380147,
+          "net_return_pct": 0.2229065168912303,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.5577642059388137,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.4885282017647984,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.9906139030049731,
+          "ci_upper": -0.03403391418053172,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 0.9313931886084633,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    }
+  ]
+}
