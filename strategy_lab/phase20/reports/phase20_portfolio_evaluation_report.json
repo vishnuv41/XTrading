@@ -1,0 +1,366 @@
+{
+  "experiment": "Phase 20 Portfolio Construction & Risk Management",
+  "dataset_window": "Development (2020-08-11 to 2024-12-31)",
+  "baseline_metrics_30bps": {
+    "net_annualized_return": 0.9341376343517787,
+    "gross_annualized_return": 1.0188434186137907,
+    "net_sharpe": 1.4841436710827958,
+    "gross_sharpe": 1.5638411233041247,
+    "max_drawdown": -0.5647277796383262,
+    "annualized_turnover": 28.590502909393184,
+    "turnover_drag_annualized": 0.04288575436408978
+  },
+  "results": [
+    {
+      "mechanism_id": "Risk_Parity_Sizing",
+      "description": "Volatility-inverse sizing across open trend signals (1 / normalized ATR14)",
+      "metrics_30bps": {
+        "net_annualized_return": 0.7874873077376832,
+        "gross_annualized_return": 0.9008714125911987,
+        "net_sharpe": 1.294654178236958,
+        "gross_sharpe": 1.404720539997708,
+        "max_drawdown": -0.5636866930050305,
+        "annualized_turnover": 41.05967170556514,
+        "turnover_drag_annualized": 0.06158950755834768
+      },
+      "delta_sharpe": -0.18948949284583771,
+      "delta_return": -0.1466503266140955,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.404720539997708,
+          "net_return_pct": 90.08714125911987,
+          "max_drawdown_pct": 51.22624414602133
+        },
+        "10bps": {
+          "net_sharpe": 1.3680401830098252,
+          "net_return_pct": 86.23045618145848,
+          "max_drawdown_pct": 53.004166267687715
+        },
+        "20bps": {
+          "net_sharpe": 1.3313511996479706,
+          "net_return_pct": 82.45150483675462,
+          "max_drawdown_pct": 54.71752960731088
+        },
+        "30bps": {
+          "net_sharpe": 1.294654178236958,
+          "net_return_pct": 78.74873077376832,
+          "max_drawdown_pct": 56.36866930050305
+        },
+        "40bps": {
+          "net_sharpe": 1.2579497075326869,
+          "net_return_pct": 75.12060850038979,
+          "max_drawdown_pct": 57.98507810611178
+        },
+        "45bps": {
+          "net_sharpe": 1.2395948627880529,
+          "net_return_pct": 73.334073383115,
+          "max_drawdown_pct": 58.845505924910015
+        },
+        "50bps": {
+          "net_sharpe": 1.2212383766749175,
+          "net_return_pct": 71.56564287190325,
+          "max_drawdown_pct": 59.688374869539516
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": -0.18948949284583771,
+        "ci_lower": -0.3523947886882559,
+        "ci_upper": -0.010199270373608543,
+        "p_value_one_tailed": 0.9802
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 1.053524158597558,
+          "max_drawdown_pct": 24.29567244670157,
+          "net_return_pct": 51.33642852373499,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 2.617591172414711,
+          "max_drawdown_pct": 41.63537985276105,
+          "net_return_pct": 730.5157081948332,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -1.833376220929409,
+          "max_drawdown_pct": 40.157361541755094,
+          "net_return_pct": -39.03589682271672,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 1.318533628470246,
+          "max_drawdown_pct": 27.54787454150472,
+          "net_return_pct": 46.06274670919173,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 1.1926000073764655,
+          "max_drawdown_pct": 32.9636623959253,
+          "net_return_pct": 47.4229744875009,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.1466503266140955,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.18948949284583771,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.3523947886882559,
+          "ci_upper": -0.010199270373608543,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 1.2212383766749175,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "mechanism_id": "Breadth_Scaled_Exposure",
+      "description": "Continuous portfolio exposure scaling based on 9-asset trend breadth E_t = clip(Breadth / 0.60, 0.20, 1.0)",
+      "metrics_30bps": {
+        "net_annualized_return": 0.9437847470053768,
+        "gross_annualized_return": 1.0299529898773834,
+        "net_sharpe": 1.509013904998198,
+        "gross_sharpe": 1.5909852617498557,
+        "max_drawdown": -0.5401017483895869,
+        "annualized_turnover": 28.93535066654352,
+        "turnover_drag_annualized": 0.04340302599981527
+      },
+      "delta_sharpe": 0.02487023391540233,
+      "delta_return": 0.009647112653598189,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.5909852617498557,
+          "net_return_pct": 102.99529898773834,
+          "max_drawdown_pct": 49.51415854690063
+        },
+        "10bps": {
+          "net_sharpe": 1.563667859373276,
+          "net_return_pct": 100.081846131823,
+          "max_drawdown_pct": 51.05942357038929
+        },
+        "20bps": {
+          "net_sharpe": 1.5363439105840475,
+          "net_return_pct": 97.20976512034798,
+          "max_drawdown_pct": 52.55762008400253
+        },
+        "30bps": {
+          "net_sharpe": 1.509013904998198,
+          "net_return_pct": 94.37847470053768,
+          "max_drawdown_pct": 54.01017483895869
+        },
+        "40bps": {
+          "net_sharpe": 1.4816783323904386,
+          "net_return_pct": 91.58740169896475,
+          "max_drawdown_pct": 55.418471548428315
+        },
+        "45bps": {
+          "net_sharpe": 1.4680086115405548,
+          "net_return_pct": 90.20676979514539,
+          "max_drawdown_pct": 56.106444096988106
+        },
+        "50bps": {
+          "net_sharpe": 1.4543376826503815,
+          "net_return_pct": 88.83598091044864,
+          "max_drawdown_pct": 56.78385217946508
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": 0.02487023391540233,
+        "ci_lower": -0.06858579681461698,
+        "ci_upper": 0.12285450561530274,
+        "p_value_one_tailed": 0.2979
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 0.6965847663093007,
+          "max_drawdown_pct": 25.972051852883443,
+          "net_return_pct": 25.94971198957228,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 3.175829040377344,
+          "max_drawdown_pct": 38.017111098110824,
+          "net_return_pct": 991.2740327628514,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -1.4329085039953662,
+          "max_drawdown_pct": 36.96753032637257,
+          "net_return_pct": -31.916478594941854,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 1.1882426384584277,
+          "max_drawdown_pct": 33.07008683722349,
+          "net_return_pct": 42.99641284573206,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 1.3206534951992486,
+          "max_drawdown_pct": 31.136393043361505,
+          "net_return_pct": 59.35276237679885,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": 0.009647112653598189,
+          "pass": true
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.02487023391540233,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.06858579681461698,
+          "ci_upper": 0.12285450561530274,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 1.4543376826503815,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 3.90681377075746,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "mechanism_id": "Composite_Risk_Portfolio",
+      "description": "Volatility-inverse risk parity sizing scaled by continuous market breadth",
+      "metrics_30bps": {
+        "net_annualized_return": 0.8059029770326331,
+        "gross_annualized_return": 0.9125067477300879,
+        "net_sharpe": 1.323851262976852,
+        "gross_sharpe": 1.4279140646985953,
+        "max_drawdown": -0.5328588836855125,
+        "annualized_turnover": 38.30382651589437,
+        "turnover_drag_annualized": 0.05745573977384156
+      },
+      "delta_sharpe": -0.1602924081059438,
+      "delta_return": -0.12823465731914552,
+      "friction_sweep": {
+        "0bps": {
+          "net_sharpe": 1.4279140646985953,
+          "net_return_pct": 91.25067477300878,
+          "max_drawdown_pct": 48.40747607964678
+        },
+        "10bps": {
+          "net_sharpe": 1.3932372986202355,
+          "net_return_pct": 87.62959475978282,
+          "max_drawdown_pct": 50.08106989749168
+        },
+        "20bps": {
+          "net_sharpe": 1.3585494921986028,
+          "net_return_pct": 84.07655872958006,
+          "max_drawdown_pct": 51.70062175331657
+        },
+        "30bps": {
+          "net_sharpe": 1.323851262976852,
+          "net_return_pct": 80.59029770326332,
+          "max_drawdown_pct": 53.28588836855125
+        },
+        "40bps": {
+          "net_sharpe": 1.289143229181378,
+          "net_return_pct": 77.16956618876951,
+          "max_drawdown_pct": 54.985938424576865
+        },
+        "45bps": {
+          "net_sharpe": 1.271785728937524,
+          "net_return_pct": 75.48339109809984,
+          "max_drawdown_pct": 55.812714537670935
+        },
+        "50bps": {
+          "net_sharpe": 1.2544260096667785,
+          "net_return_pct": 73.81314174968266,
+          "max_drawdown_pct": 56.62436723193151
+        }
+      },
+      "bootstrap": {
+        "point_delta_sharpe": -0.1602924081059438,
+        "ci_lower": -0.3455689674377978,
+        "ci_upper": 0.04632203558266097,
+        "p_value_one_tailed": 0.9331
+      },
+      "yearly_breakdown": {
+        "2020": {
+          "net_sharpe": 0.9148076801517462,
+          "max_drawdown_pct": 25.112945770026272,
+          "net_return_pct": 40.10247918116691,
+          "pass": true
+        },
+        "2021": {
+          "net_sharpe": 2.6976825685239554,
+          "max_drawdown_pct": 37.2747583105844,
+          "net_return_pct": 787.7818782341749,
+          "pass": true
+        },
+        "2022": {
+          "net_sharpe": -1.5373913448456784,
+          "max_drawdown_pct": 35.676615299084304,
+          "net_return_pct": -31.424255480156337,
+          "pass": false
+        },
+        "2023": {
+          "net_sharpe": 1.0312434232019578,
+          "max_drawdown_pct": 32.10718390002472,
+          "net_return_pct": 32.33633799867406,
+          "pass": true
+        },
+        "2024": {
+          "net_sharpe": 1.1850253846626002,
+          "max_drawdown_pct": 29.6333543542118,
+          "net_return_pct": 45.904534476306516,
+          "pass": true
+        }
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.12823465731914552,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.1602924081059438,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.3455689674377978,
+          "ci_upper": 0.04632203558266097,
+          "pass": false
+        },
+        "gate_4_severe_friction_survival": {
+          "sharpe_50bps": 1.2544260096667785,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "pass": false
+        },
+        "gate_6_subperiod_stability": {
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    }
+  ]
+}
