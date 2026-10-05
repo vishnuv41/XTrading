@@ -24,7 +24,7 @@ def run_backtest(
     price_col: str = "close",
     max_holding: int = 20,
     confidence_threshold: float = 0.4,
-    transaction_cost_bps: float = 5.0,
+    transaction_cost_bps: float = 15.0,
     periods_per_year: int = 252,
 ) -> dict:
     """
@@ -124,7 +124,7 @@ def run_triple_barrier_backtest(
     sl_mult: float = 2.0,
     max_holding: int = 20,
     confidence_threshold: float = 0.4,
-    transaction_cost_bps: float = 5.0,
+    transaction_cost_bps: float = 15.0,
     periods_per_year: int = 252,
 ) -> dict:
     """
