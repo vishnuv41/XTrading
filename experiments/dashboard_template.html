@@ -202,14 +202,14 @@
                 <div class="flex items-center space-x-3">
                     <label class="text-xs text-slate-400 font-mono font-semibold">SELECTED PAIR:</label>
                     <select id="tradeNowAssetSelect" onchange="loadTradeNowAnalysis()" class="bg-slate-900 text-white font-mono font-bold text-sm px-4 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-blue-500">
+                        <option value="LTC/USDT">LTC/USDT</option>
+                        <option value="ADA/USDT">ADA/USDT</option>
+                        <option value="BNB/USDT">BNB/USDT</option>
+                        <option value="SOL/USDT">SOL/USDT</option>
                         <option value="BTC/USDT">BTC/USDT</option>
                         <option value="ETH/USDT">ETH/USDT</option>
-                        <option value="SOL/USDT">SOL/USDT</option>
-                        <option value="BNB/USDT">BNB/USDT</option>
                         <option value="XRP/USDT">XRP/USDT</option>
-                        <option value="ADA/USDT">ADA/USDT</option>
                         <option value="DOGE/USDT">DOGE/USDT</option>
-                        <option value="LTC/USDT">LTC/USDT</option>
                         <option value="LINK/USDT">LINK/USDT</option>
                     </select>
                 </div>
@@ -218,7 +218,7 @@
                     <button onclick="loadTradeNowAnalysis()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
                         <i class="fa-solid fa-arrows-rotate"></i> ANALYZE NOW
                     </button>
-                    <button onclick="executePaperTradeFromUI()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30">
+                    <button id="btnRecordPaperTrade" onclick="executePaperTradeFromUI()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30">
                         <i class="fa-solid fa-file-signature"></i> RECORD SIMULATED PAPER TRADE
                     </button>
                     <button onclick="openSelectedInChart()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition border border-slate-700 flex items-center gap-2">
@@ -350,14 +350,14 @@
             <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-4">
                     <select id="chartAssetSelect" onchange="updateLiveChart()" class="bg-slate-900 text-white font-mono font-bold text-sm px-4 py-2 rounded-xl border border-slate-700">
+                        <option value="BNB/USDT">BNB/USDT</option>
+                        <option value="LTC/USDT">LTC/USDT</option>
+                        <option value="ADA/USDT">ADA/USDT</option>
                         <option value="BTC/USDT">BTC/USDT</option>
                         <option value="ETH/USDT">ETH/USDT</option>
                         <option value="SOL/USDT">SOL/USDT</option>
-                        <option value="BNB/USDT">BNB/USDT</option>
                         <option value="XRP/USDT">XRP/USDT</option>
-                        <option value="ADA/USDT">ADA/USDT</option>
                         <option value="DOGE/USDT">DOGE/USDT</option>
-                        <option value="LTC/USDT">LTC/USDT</option>
                         <option value="LINK/USDT">LINK/USDT</option>
                     </select>
 
@@ -382,7 +382,7 @@
             <!-- Chart Display Container -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-9 space-y-4">
-                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800 relative">
                         <div id="lightweightChartContainer" class="w-full h-[520px]"></div>
                     </div>
 
@@ -412,13 +412,45 @@
         <!-- TAB 5: 📊 ANALYTICS -->
         <!-- ========================================== -->
         <div id="tab-analytics" class="tab-content hidden space-y-6">
+            
+            <!-- Performance KPI Cards -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 font-mono" id="analyticsKeyMetrics">
                 <!-- Populated by JS -->
             </div>
 
+            <!-- Open Positions Spotlight (Marked-to-Market) -->
+            <div class="glass-panel p-5 rounded-2xl border border-blue-500/30 bg-blue-950/10">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-bold uppercase text-blue-400 font-mono flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish animate-pulse"></i> Live Open Simulated Paper Positions (Mark-to-Market)
+                    </h3>
+                    <span class="text-xs text-slate-400 font-mono" id="openPosCountBadge">0 Open</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Asset</th>
+                                <th class="p-3">Side</th>
+                                <th class="p-3">Entry Price</th>
+                                <th class="p-3">Current Price</th>
+                                <th class="p-3">Stop Loss</th>
+                                <th class="p-3">Take Profit</th>
+                                <th class="p-3">Floating P&L</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800" id="analyticsOpenPositionsTbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-8 glass-panel p-5 rounded-2xl border border-slate-800">
-                    <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated Decision Equity Trajectory</h3>
+                    <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated Closed Decision Equity Trajectory</h3>
                     <div class="h-72 w-full"><canvas id="analyticsEquityCanvas"></canvas></div>
                 </div>
                 <div class="lg:col-span-4 glass-panel p-5 rounded-2xl border border-slate-800">
@@ -427,8 +459,9 @@
                 </div>
             </div>
 
+            <!-- Closed Trades Journal -->
             <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-                <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated Recommendations Journal</h3>
+                <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Closed Simulated Trades Journal</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs font-mono">
                         <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
@@ -574,18 +607,16 @@
     <!-- Client Logic -->
     <script>
         let currentTab = 'dashboard';
-        let currentChartSymbol = 'BTC/USDT';
+        let currentChartSymbol = 'BNB/USDT';
         let currentChartTimeframe = '1h';
         let lwChart = null;
         let candleSeries = null;
         let ema20Series = null;
         let ema50Series = null;
         let ema200Series = null;
-        let slPriceLine = null;
-        let tpPriceLine = null;
         let rsiChart = null;
         let macdChart = null;
-        let cachedScanner = [];
+        let activePriceLines = [];
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -611,7 +642,6 @@
         async function loadDashboard() {
             const res = await fetch('/api/scanner');
             const data = await res.json();
-            cachedScanner = data;
 
             // 1. Tickers Grid
             const tickerGrid = document.getElementById('dashTickerGrid');
@@ -632,7 +662,7 @@
             `).join('');
 
             // 2. Top Spotlight Setup
-            const top = data[0] || data[1] || data[2];
+            const top = data[0] || data[1];
             if (top) {
                 const topCard = document.getElementById('dashTopSetupCard');
                 topCard.innerHTML = `
@@ -649,6 +679,7 @@
                         <div class="text-right">
                             <div class="text-xs text-slate-400 font-mono">Setup Quality Score</div>
                             <div class="text-3xl font-black font-mono text-emerald-400">${top.setup_quality_score}<span class="text-sm text-slate-500">/100</span></div>
+                            <div class="text-[9px] text-slate-500 font-mono">Heuristic rule score (not a win %)</div>
                         </div>
                     </div>
 
@@ -732,23 +763,23 @@
             const aData = await aRes.json();
             const pCard = document.getElementById('dashPortfolioCard');
             pCard.innerHTML = `
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">Portfolio & Risk Overview</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">Portfolio & Paper Risk</h3>
                 <div class="space-y-3 font-mono text-xs">
                     <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
                         <span class="text-slate-400">Account Equity</span>
                         <span class="text-base font-bold text-white">$${aData.current_equity.toLocaleString()}</span>
                     </div>
                     <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
-                        <span class="text-slate-400">Simulated Net P&L</span>
-                        <span class="font-bold text-emerald-400">+$${aData.total_pnl_usd.toLocaleString()} (${aData.total_pnl_pct >= 0 ? '+' : ''}${aData.total_pnl_pct}%)</span>
+                        <span class="text-slate-400">Floating Paper P&L</span>
+                        <span class="font-bold ${aData.unrealized_pnl_usd >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${aData.unrealized_pnl_usd >= 0 ? '+' : ''}$${aData.unrealized_pnl_usd.toFixed(2)}</span>
                     </div>
                     <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
-                        <span class="text-slate-400">Win Rate / Profit Factor</span>
-                        <span class="font-bold text-slate-200">${aData.win_rate_pct}% / ${aData.profit_factor} PF</span>
+                        <span class="text-slate-400">Open Simulated Positions</span>
+                        <span class="font-bold text-blue-400">${aData.open_positions_count} OPEN</span>
                     </div>
                     <div class="flex justify-between items-center py-1.5">
                         <span class="text-slate-400">Risk Allocation</span>
-                        <span class="font-bold text-blue-400">1.0% per Trade ($100)</span>
+                        <span class="font-bold text-slate-200">1.0% per Trade ($100)</span>
                     </div>
                 </div>
             `;
@@ -795,10 +826,21 @@
                         <div>
                             <span class="text-xs text-slate-400 block">Setup Quality</span>
                             <span class="text-2xl font-black text-emerald-400">${data.setup_quality_score}<span class="text-xs text-slate-500">/100</span></span>
+                            <span class="text-[9px] text-slate-500 block font-mono">Heuristic rule score</span>
                         </div>
                     </div>
                 </div>
             `;
+
+            // Button state
+            const btnPaper = document.getElementById('btnRecordPaperTrade');
+            if (data.decision !== 'TRADE') {
+                btnPaper.classList.add('opacity-50', 'cursor-not-allowed');
+                btnPaper.title = 'Paper trading requires a confirmed TRADE decision.';
+            } else {
+                btnPaper.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnPaper.title = 'Record simulated paper position';
+            }
 
             const planGrid = document.getElementById('tradeNowPlanGrid');
             planGrid.innerHTML = `
@@ -854,6 +896,11 @@
             const data = await res.json();
             const plan = data.trade_plan;
 
+            if (plan.direction !== 'LONG' && plan.direction !== 'SHORT') {
+                alert(`Cannot record paper trade: ${sym} is currently ${data.decision} (NEUTRAL). Only confirmed LONG or SHORT trade setups can be simulated.`);
+                return;
+            }
+
             const postRes = await fetch('/api/record-paper-trade', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -864,6 +911,7 @@
                     stop_loss: plan.stop_loss,
                     take_profit_1: plan.take_profit_1,
                     rr: plan.risk_reward_ratio,
+                    units: plan.position_size_units,
                     regime: data.regime.regime,
                     setup: data.setup.setup_type,
                     pnl_usd: 0.0,
@@ -871,7 +919,11 @@
                 })
             });
             const result = await postRes.json();
-            alert(`Simulated Paper Trade Recorded: ${result.id} for ${sym}! View in Tab 5 Analytics.`);
+            if (postRes.ok) {
+                alert(`Simulated Paper Trade Recorded: ${result.id} for ${sym}! Position is now OPEN and tracking live in Tab 5 Analytics.`);
+            } else {
+                alert(`Error: ${result.detail || 'Could not record paper trade'}`);
+            }
         }
 
         function filterScanner(type) {
@@ -940,6 +992,37 @@
                 if (data.indicators.ema20) ema20Series.setData(data.indicators.ema20);
                 if (data.indicators.ema50) ema50Series.setData(data.indicators.ema50);
                 if (data.indicators.ema200) ema200Series.setData(data.indicators.ema200);
+
+                // Clear previous price lines
+                if (activePriceLines.length > 0) {
+                    activePriceLines.forEach(l => candleSeries.removePriceLine(l));
+                    activePriceLines = [];
+                }
+
+                // Add active trade lines
+                if (data.levels) {
+                    if (data.levels.stop_loss) {
+                        activePriceLines.push(candleSeries.createPriceLine({
+                            price: data.levels.stop_loss,
+                            color: '#ef4444',
+                            lineWidth: 1.5,
+                            lineStyle: LightweightCharts.LineStyle.Dashed,
+                            axisLabelVisible: true,
+                            title: 'SL'
+                        }));
+                    }
+                    if (data.levels.take_profit_1) {
+                        activePriceLines.push(candleSeries.createPriceLine({
+                            price: data.levels.take_profit_1,
+                            color: '#10b981',
+                            lineWidth: 1.5,
+                            lineStyle: LightweightCharts.LineStyle.Dashed,
+                            axisLabelVisible: true,
+                            title: 'TP1 (2R)'
+                        }));
+                    }
+                }
+
                 lwChart.timeScale().fitContent();
             }
 
@@ -953,6 +1036,7 @@
                 </div>
                 <div class="space-y-2 text-xs font-mono text-slate-300">
                     <div class="flex justify-between"><span>Regime:</span> <strong class="text-white">${dec.regime.regime}</strong></div>
+                    <div class="flex justify-between"><span>Setup:</span> <strong class="text-slate-200">${dec.setup.setup_type}</strong></div>
                     <div class="flex justify-between"><span>Score:</span> <strong class="text-emerald-400">${dec.setup_quality_score}/100</strong></div>
                     <div class="flex justify-between"><span>R:R:</span> <strong class="text-blue-400">1 : ${dec.trade_plan.risk_reward_ratio.toFixed(2)}</strong></div>
                     <div class="flex justify-between"><span>Stop Loss:</span> <strong class="text-rose-400">$${dec.trade_plan.stop_loss.toLocaleString()}</strong></div>
@@ -1036,13 +1120,55 @@
             // Key metrics
             const km = document.getElementById('analyticsKeyMetrics');
             km.innerHTML = `
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Simulated Win Rate</span><span class="text-xl font-bold text-emerald-400">${data.win_rate_pct}%</span><span class="text-[10px] text-slate-500 block">${data.wins}W / ${data.losses}L</span></div>
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Profit Factor</span><span class="text-xl font-bold text-white">${data.profit_factor}</span><span class="text-[10px] text-slate-500 block">Gross Gain / Loss</span></div>
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Payoff Ratio</span><span class="text-xl font-bold text-blue-400">${data.payoff_ratio}x</span><span class="text-[10px] text-slate-500 block">Avg Win / Avg Loss</span></div>
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Total Realized P&L</span><span class="text-xl font-bold text-emerald-400">+$${data.total_pnl_usd.toLocaleString()}</span><span class="text-[10px] text-slate-500 block">${data.total_pnl_pct >= 0 ? '+' : ''}${data.total_pnl_pct}% on Equity</span></div>
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Max Drawdown</span><span class="text-xl font-bold text-rose-400">-${data.max_drawdown_pct}%</span><span class="text-[10px] text-slate-500 block">Simulated Peak-to-Trough</span></div>
-                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Simulated Trades</span><span class="text-xl font-bold text-purple-400">${data.total_trades}</span><span class="text-[10px] text-slate-500 block">Paper Decision Log</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Simulated Win Rate</span><span class="text-xl font-bold text-emerald-400">${data.win_rate_display}</span><span class="text-[10px] text-slate-500 block">${data.wins}W / ${data.losses}L (Closed)</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Profit Factor</span><span class="text-xl font-bold text-white">${data.profit_factor_display}</span><span class="text-[10px] text-slate-500 block">Gross Gain / Loss</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Payoff Ratio</span><span class="text-xl font-bold text-blue-400">${data.payoff_ratio_display}</span><span class="text-[10px] text-slate-500 block">Avg Win / Avg Loss</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Floating Unrealized P&L</span><span class="text-xl font-bold ${data.unrealized_pnl_usd >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${data.unrealized_pnl_usd >= 0 ? '+' : ''}$${data.unrealized_pnl_usd.toFixed(2)}</span><span class="text-[10px] text-slate-500 block">${data.open_positions_count} Open Positions</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Realized P&L</span><span class="text-xl font-bold text-slate-200">$${data.realized_pnl_usd.toFixed(2)}</span><span class="text-[10px] text-slate-500 block">${data.closed_trades_count} Closed Trades</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Account Equity</span><span class="text-xl font-bold text-purple-400">$${data.current_equity.toLocaleString()}</span><span class="text-[10px] text-slate-500 block">Initial: $10,000</span></div>
             `;
+
+            // Open Positions Table
+            document.getElementById('openPosCountBadge').innerText = `${data.open_positions_count} Open`;
+            const openTbody = document.getElementById('analyticsOpenPositionsTbody');
+            if (data.open_positions && data.open_positions.length > 0) {
+                openTbody.innerHTML = data.open_positions.map(t => `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-slate-400 font-bold">${t.id}</td>
+                        <td class="p-3 font-bold text-white">${t.symbol}</td>
+                        <td class="p-3 text-blue-400 font-bold">${t.direction}</td>
+                        <td class="p-3">$${t.entry_price.toLocaleString()}</td>
+                        <td class="p-3 font-bold text-slate-200">$${(t.current_price || t.entry_price).toLocaleString()}</td>
+                        <td class="p-3 text-rose-400">$${t.stop_loss.toLocaleString()}</td>
+                        <td class="p-3 text-emerald-400">$${t.take_profit_1.toLocaleString()}</td>
+                        <td class="p-3 font-bold ${(t.unrealized_pnl || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${(t.unrealized_pnl || 0) >= 0 ? '+' : ''}$${(t.unrealized_pnl || 0).toFixed(2)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300 font-bold animate-pulse">OPEN</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                openTbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-500">No open simulated positions.</td></tr>`;
+            }
+
+            // Closed Trades Journal Table
+            const jTbody = document.getElementById('analyticsJournalTbody');
+            if (data.closed_trades && data.closed_trades.length > 0) {
+                jTbody.innerHTML = data.closed_trades.map(t => `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-slate-400">${t.id}</td>
+                        <td class="p-3 font-bold text-white">${t.symbol}</td>
+                        <td class="p-3 text-blue-400">${t.direction}</td>
+                        <td class="p-3">$${t.entry_price.toLocaleString()}</td>
+                        <td class="p-3">$${t.exit_price.toLocaleString()}</td>
+                        <td class="p-3 font-bold ${(t.pnl_usd || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${(t.pnl_usd || 0) >= 0 ? '+' : ''}$${(t.pnl_usd || 0).toLocaleString()}</td>
+                        <td class="p-3">${(t.rr || 0).toFixed(1)}R</td>
+                        <td class="p-3">${t.regime}</td>
+                        <td class="p-3 text-slate-300">${t.setup}</td>
+                        <td class="p-3 text-slate-400">${t.exit_reason}</td>
+                    </tr>
+                `).join('');
+            } else {
+                jTbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-500">No closed trades yet. Open positions are tracking live against incoming market bars.</td></tr>`;
+            }
 
             // Equity canvas
             const eqCtx = document.getElementById('analyticsEquityCanvas').getContext('2d');
@@ -1052,7 +1178,7 @@
                 data: {
                     labels: data.equity_curve.map((_, i) => '#' + i),
                     datasets: [{
-                        label: 'Simulated Equity ($)',
+                        label: 'Realized Equity ($)',
                         data: data.equity_curve.map(d => d.equity),
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1080,10 +1206,10 @@
             regChart = new Chart(regCtx, {
                 type: 'bar',
                 data: {
-                    labels: regLabels,
+                    labels: regLabels.length > 0 ? regLabels : ['No Closed Trades'],
                     datasets: [{
-                        label: 'P&L ($)',
-                        data: regPnl,
+                        label: 'Realized P&L ($)',
+                        data: regPnl.length > 0 ? regPnl : [0],
                         backgroundColor: regPnl.map(v => v >= 0 ? '#10b981' : '#ef4444')
                     }]
                 },
@@ -1097,23 +1223,6 @@
                     plugins: { legend: { display: false } }
                 }
             });
-
-            // Journal table
-            const jTbody = document.getElementById('analyticsJournalTbody');
-            jTbody.innerHTML = data.recent_trades.map(t => `
-                <tr class="hover:bg-slate-800/40">
-                    <td class="p-3 text-slate-400">${t.id || 'SIM'}</td>
-                    <td class="p-3 font-bold text-white">${t.symbol}</td>
-                    <td class="p-3 text-blue-400">${t.direction || 'LONG'}</td>
-                    <td class="p-3">$${(t.entry_price || 0).toLocaleString()}</td>
-                    <td class="p-3">$${(t.exit_price || 0).toLocaleString()}</td>
-                    <td class="p-3 font-bold ${(t.pnl_usd || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}">$${(t.pnl_usd || 0) >= 0 ? '+' : ''}${(t.pnl_usd || 0).toLocaleString()}</td>
-                    <td class="p-3">${(t.rr || 0).toFixed(1)}R</td>
-                    <td class="p-3">${t.regime || 'BULL'}</td>
-                    <td class="p-3 text-slate-300">${t.setup || 'BREAKOUT'}</td>
-                    <td class="p-3 text-slate-400">${t.exit_reason || 'OPEN'}</td>
-                </tr>
-            `).join('');
         }
 
         async function loadSystemHealth() {

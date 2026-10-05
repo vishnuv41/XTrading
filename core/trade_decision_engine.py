@@ -475,17 +475,27 @@ def calculate_comprehensive_decision(
         active_risk_unit = long_risk
 
     # Hard Gates Evaluation
+    # 1. Setup Gate: If NO DEFINED SETUP, TRADE is strictly forbidden.
+    if setup["setup_type"] == "NO DEFINED SETUP":
+        hard_gate_passed = False
+        gate_blocker = "No confirmed technical entry setup (requires Breakout, Pullback to EMA, or Mean Reversion)."
+        reasons_why_wait.append("No defined entry trigger (awaiting structural breakout or pullback to EMA)")
+        score = min(score, 58)
+
+    # 2. Risk/Reward Gate
     if active_rr < 1.8:
         hard_gate_passed = False
         gate_blocker = f"Risk/Reward ratio ({active_rr:.2f}) is below minimum 1.80 threshold."
         reasons_why_wait.append(f"Insufficient R:R ({active_rr:.2f} < 1.80)")
 
+    # 3. Multi-Timeframe Alignment Gate
     if not htf_analysis["aligned"] and direction != "NEUTRAL":
         reasons_why_wait.append(f"Higher timeframe conflict: {htf_analysis['alignment']}")
         if score < 75:
             hard_gate_passed = False
             gate_blocker = "Higher timeframe alignment is conflicting (need >= 3 timeframes in agreement)."
 
+    # 4. Regime Gate
     if regime["regime"] in ["SIDEWAYS / CHOPPY", "CONSOLIDATION"]:
         reasons_why_wait.append("Market is in choppy consolidation without directional momentum.")
         if score < 70:
@@ -519,7 +529,7 @@ def calculate_comprehensive_decision(
         reasons_why_wait.append(f"Trend strength weak (ADX {latest.get('adx_14', 20):.1f} < 20)")
 
     # Final Decision Assignment
-    if score >= 70 and hard_gate_passed and direction in ["LONG", "SHORT"]:
+    if score >= 70 and hard_gate_passed and direction in ["LONG", "SHORT"] and setup["setup_type"] != "NO DEFINED SETUP":
         decision = "TRADE"
         decision_badge = "🟢"
         decision_label = f"TRADE — {direction} BIAS"

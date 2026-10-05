@@ -71,43 +71,112 @@ def record_journal_entry(entry: Dict[str, Any]) -> None:
 
 
 def compute_journal_analytics() -> Dict[str, Any]:
-    """Compute performance metrics from the simulated decision recommendations journal."""
-    journal = load_realtime_journal()
+    """
+    Compute performance metrics from the simulated decision recommendations journal.
+    Continuously marks open positions to market against live candles, evaluating TP/SL triggers.
+    """
+    raw_journal = load_realtime_journal()
+    engine = get_engine()
     
-    if not journal:
-        mock_trades = [
-            {"id": "SIM-001", "symbol": "BTC/USDT", "direction": "LONG", "entry_price": 62450.0, "exit_price": 66100.0, "pnl_usd": 365.0, "rr": 2.4, "status": "CLOSED", "exit_reason": "TP1_HIT", "regime": "STRONG BULL", "setup": "BREAKOUT + MOMENTUM", "ts": "2026-09-15T12:00:00Z"},
-            {"id": "SIM-002", "symbol": "SOL/USDT", "direction": "LONG", "entry_price": 142.5, "exit_price": 158.0, "pnl_usd": 420.0, "rr": 2.8, "status": "CLOSED", "exit_reason": "TP2_HIT", "regime": "STRONG BULL", "setup": "TREND PULLBACK TO EMA", "ts": "2026-09-18T16:00:00Z"},
-            {"id": "SIM-003", "symbol": "ETH/USDT", "direction": "LONG", "entry_price": 2680.0, "exit_price": 2610.0, "pnl_usd": -100.0, "rr": -1.0, "status": "CLOSED", "exit_reason": "SL_HIT", "regime": "SIDEWAYS / CHOPPY", "setup": "BREAKOUT + MOMENTUM", "ts": "2026-09-22T08:00:00Z"},
-            {"id": "SIM-004", "symbol": "BNB/USDT", "direction": "LONG", "entry_price": 540.0, "exit_price": 582.0, "pnl_usd": 310.0, "rr": 2.2, "status": "CLOSED", "exit_reason": "TP1_HIT", "regime": "BULLISH TREND", "setup": "TREND PULLBACK TO EMA", "ts": "2026-09-26T14:00:00Z"},
-            {"id": "SIM-005", "symbol": "DOGE/USDT", "direction": "LONG", "entry_price": 0.105, "exit_price": 0.099, "pnl_usd": -100.0, "rr": -1.0, "status": "CLOSED", "exit_reason": "SL_HIT", "regime": "HIGH VOLATILITY", "setup": "BREAKOUT + MOMENTUM", "ts": "2026-09-29T20:00:00Z"},
-            {"id": "SIM-006", "symbol": "LTC/USDT", "direction": "LONG", "entry_price": 68.2, "exit_price": 74.8, "pnl_usd": 280.0, "rr": 2.1, "status": "CLOSED", "exit_reason": "TP1_HIT", "regime": "STRONG BULL", "setup": "TREND PULLBACK TO EMA", "ts": "2026-10-02T10:00:00Z"},
-            {"id": "SIM-007", "symbol": "ADA/USDT", "direction": "LONG", "entry_price": 0.345, "exit_price": 0.382, "pnl_usd": 295.0, "rr": 2.3, "status": "CLOSED", "exit_reason": "TP1_HIT", "regime": "BULLISH TREND", "setup": "BREAKOUT + MOMENTUM", "ts": "2026-10-04T18:00:00Z"}
-        ]
-        journal = mock_trades
+    # Filter out any non-actionable NEUTRAL records
+    journal = [t for t in raw_journal if t.get("direction") in ["LONG", "SHORT"]]
+    
+    updated_journal = []
+    journal_changed = False
 
-    total_trades = len(journal)
-    wins = [t for t in journal if t.get("pnl_usd", 0) > 0]
-    losses = [t for t in journal if t.get("pnl_usd", 0) <= 0]
+    with engine.connect() as conn:
+        for t in journal:
+            if t.get("status") == "OPEN":
+                sym = t.get("symbol")
+                row = conn.execute(text("""
+                    SELECT high, low, close FROM ohlcv
+                    WHERE symbol = :sym ORDER BY ts DESC LIMIT 1
+                """), {"sym": sym}).fetchone()
+
+                if row:
+                    h_val, l_val, c_val = float(row[0]), float(row[1]), float(row[2])
+                    entry_p = float(t.get("entry_price", c_val))
+                    sl_p = float(t.get("stop_loss", entry_p * 0.95))
+                    tp1_p = float(t.get("take_profit_1", entry_p * 1.05))
+                    units = float(t.get("units", 100.0 / max(abs(entry_p - sl_p), 1e-4)))
+                    side = t.get("direction", "LONG")
+
+                    if side == "LONG":
+                        if h_val >= tp1_p:
+                            t["status"] = "CLOSED"
+                            t["exit_price"] = tp1_p
+                            t["exit_reason"] = "TP1_HIT"
+                            t["pnl_usd"] = round((tp1_p - entry_p) * units, 2)
+                            t["exit_ts"] = datetime.now(timezone.utc).isoformat()
+                            journal_changed = True
+                        elif l_val <= sl_p:
+                            t["status"] = "CLOSED"
+                            t["exit_price"] = sl_p
+                            t["exit_reason"] = "SL_HIT"
+                            t["pnl_usd"] = round((sl_p - entry_p) * units, 2)
+                            t["exit_ts"] = datetime.now(timezone.utc).isoformat()
+                            journal_changed = True
+                        else:
+                            t["current_price"] = c_val
+                            t["unrealized_pnl"] = round((c_val - entry_p) * units, 2)
+                    elif side == "SHORT":
+                        if l_val <= tp1_p:
+                            t["status"] = "CLOSED"
+                            t["exit_price"] = tp1_p
+                            t["exit_reason"] = "TP1_HIT"
+                            t["pnl_usd"] = round((entry_p - tp1_p) * units, 2)
+                            t["exit_ts"] = datetime.now(timezone.utc).isoformat()
+                            journal_changed = True
+                        elif h_val >= sl_p:
+                            t["status"] = "CLOSED"
+                            t["exit_price"] = sl_p
+                            t["exit_reason"] = "SL_HIT"
+                            t["pnl_usd"] = round((entry_p - sl_p) * units, 2)
+                            t["exit_ts"] = datetime.now(timezone.utc).isoformat()
+                            journal_changed = True
+                        else:
+                            t["current_price"] = c_val
+                            t["unrealized_pnl"] = round((entry_p - c_val) * units, 2)
+
+            updated_journal.append(t)
+
+    if journal_changed and updated_journal:
+        try:
+            with open(JOURNAL_FILE, "w", encoding="utf-8") as f:
+                for rec in updated_journal:
+                    f.write(json.dumps(rec) + "\n")
+        except Exception:
+            pass
+
+    open_positions = [t for t in updated_journal if t.get("status") == "OPEN"]
+    closed_trades = [t for t in updated_journal if t.get("status") == "CLOSED"]
     
-    total_pnl = sum(t.get("pnl_usd", 0) for t in journal)
-    win_rate = (len(wins) / total_trades * 100.0) if total_trades > 0 else 0.0
+    total_closed = len(closed_trades)
+    wins = [t for t in closed_trades if t.get("pnl_usd", 0) > 0]
+    losses = [t for t in closed_trades if t.get("pnl_usd", 0) <= 0]
+    
+    realized_pnl = sum(t.get("pnl_usd", 0) for t in closed_trades)
+    unrealized_pnl = sum(t.get("unrealized_pnl", 0) for t in open_positions)
     
     total_win_amt = sum(t.get("pnl_usd", 0) for t in wins)
     total_loss_amt = abs(sum(t.get("pnl_usd", 0) for t in losses))
-    profit_factor = (total_win_amt / total_loss_amt) if total_loss_amt > 0 else (99.0 if total_win_amt > 0 else 1.0)
     
+    win_rate_str = f"{len(wins) / total_closed * 100.0:.1f}%" if total_closed > 0 else "N/A"
+    profit_factor_str = f"{total_win_amt / total_loss_amt:.2f}" if total_loss_amt > 0 else ("99.0" if total_win_amt > 0 else "N/A")
     avg_winner = (total_win_amt / len(wins)) if wins else 0.0
     avg_loser = (total_loss_amt / len(losses)) if losses else 0.0
-    payoff_ratio = (avg_winner / avg_loser) if avg_loser > 0 else avg_winner
+    payoff_str = f"{avg_winner / avg_loser:.2f}x" if avg_loser > 0 else "N/A"
     
+    current_equity = INITIAL_CAPITAL + realized_pnl + unrealized_pnl
+    
+    # Equity curve
     equity_curve = [{"time": "Start", "equity": INITIAL_CAPITAL, "pnl": 0.0}]
-    running_eq = INITIAL_CAPITAL
     running_pnl = 0.0
+    running_eq = INITIAL_CAPITAL
     max_eq = INITIAL_CAPITAL
     max_dd_pct = 0.0
     
-    for t in journal:
+    for t in closed_trades:
         running_pnl += t.get("pnl_usd", 0)
         running_eq = INITIAL_CAPITAL + running_pnl
         if running_eq > max_eq:
@@ -116,13 +185,13 @@ def compute_journal_analytics() -> Dict[str, Any]:
         if dd > max_dd_pct:
             max_dd_pct = dd
         equity_curve.append({
-            "time": t.get("ts", "N/A"),
+            "time": t.get("exit_ts", "N/A"),
             "equity": round(running_eq, 2),
             "pnl": round(running_pnl, 2)
         })
 
     by_asset = {}
-    for t in journal:
+    for t in closed_trades:
         sym = t.get("symbol", "Other")
         if sym not in by_asset:
             by_asset[sym] = {"trades": 0, "wins": 0, "pnl": 0.0}
@@ -132,7 +201,7 @@ def compute_journal_analytics() -> Dict[str, Any]:
         by_asset[sym]["pnl"] += t.get("pnl_usd", 0)
 
     by_regime = {}
-    for t in journal:
+    for t in closed_trades:
         reg = t.get("regime", "OTHER")
         if reg not in by_regime:
             by_regime[reg] = {"trades": 0, "pnl": 0.0}
@@ -140,22 +209,24 @@ def compute_journal_analytics() -> Dict[str, Any]:
         by_regime[reg]["pnl"] += t.get("pnl_usd", 0)
 
     return {
-        "total_trades": total_trades,
+        "open_positions_count": len(open_positions),
+        "closed_trades_count": total_closed,
         "wins": len(wins),
         "losses": len(losses),
-        "win_rate_pct": round(win_rate, 1),
-        "profit_factor": round(profit_factor, 2),
-        "total_pnl_usd": round(total_pnl, 2),
-        "total_pnl_pct": round((total_pnl / INITIAL_CAPITAL) * 100.0, 2),
-        "avg_winner_usd": round(avg_winner, 2),
-        "avg_loser_usd": round(avg_loser, 2),
-        "payoff_ratio": round(payoff_ratio, 2),
-        "current_equity": round(running_eq, 2),
+        "win_rate_display": win_rate_str,
+        "profit_factor_display": profit_factor_str,
+        "payoff_ratio_display": payoff_str,
+        "realized_pnl_usd": round(realized_pnl, 2),
+        "unrealized_pnl_usd": round(unrealized_pnl, 2),
+        "total_pnl_pct": round(((current_equity - INITIAL_CAPITAL) / INITIAL_CAPITAL) * 100.0, 2),
+        "current_equity": round(current_equity, 2),
         "max_drawdown_pct": round(max_dd_pct, 2),
         "equity_curve": equity_curve,
         "by_asset": by_asset,
         "by_regime": by_regime,
-        "recent_trades": list(reversed(journal[-15:]))
+        "open_positions": open_positions,
+        "closed_trades": list(reversed(closed_trades[-15:])),
+        "recent_trades": list(reversed(updated_journal[-15:]))
     }
 
 
@@ -264,10 +335,18 @@ def get_analytics_api():
 
 @app.post("/api/record-paper-trade")
 def post_record_paper_trade(entry: Dict[str, Any]):
-    """Record simulated trade recommendation into paper journal."""
+    """Record simulated trade recommendation into paper journal (strict validation)."""
+    direction = entry.get("direction")
+    if direction not in ["LONG", "SHORT"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot record paper trade: Direction must be LONG or SHORT. NEUTRAL / NO TRADE cannot be simulated."
+        )
+    
     entry["id"] = f"SIM-{int(time.time())}"
     entry["ts"] = datetime.now(timezone.utc).isoformat()
     entry["status"] = "OPEN"
+    entry["pnl_usd"] = 0.0
     record_journal_entry(entry)
     return {"status": "SUCCESS", "id": entry["id"]}
 
