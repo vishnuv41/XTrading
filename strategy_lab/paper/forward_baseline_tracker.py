@@ -8,11 +8,12 @@ Tracks 3 parallel arms with independent $10,000 USD virtual accounts:
 3. Arm C: Static_Exposure_45pct (45% crypto / 55% cash, monthly rebalanced on 1st of month)
 
 Features:
+- Cryptographic SHA-256 Hash-Chained Ledger: Every row is linked to the previous row's hash.
 - Idempotent Catch-Up: Processes all missed closed calendar days chronologically.
-- Append-Only Log: Records daily bar transitions to strategy_lab/paper/forward_track_ledger.jsonl.
 - Complete Segregation: No dependencies on Phase 13 single-position engine or database state.
 """
 
+import hashlib
 import json
 import os
 import sys
@@ -31,6 +32,9 @@ STATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state")
 STATE_FILE = os.path.join(STATE_DIR, "forward_track_state.json")
 LEDGER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "forward_track_ledger.jsonl")
 
+# Official Start Timestamp (first closed bar post-freeze)
+OFFICIAL_START_TS = "2026-10-06T00:00:00+00:00"
+
 
 def initialize_or_load_state() -> Dict[str, Any]:
     os.makedirs(STATE_DIR, exist_ok=True)
@@ -40,7 +44,7 @@ def initialize_or_load_state() -> Dict[str, Any]:
 
     n_syms = len(UNIVERSE_SYMBOLS)
     return {
-        "start_date": datetime.now(timezone.utc).isoformat(),
+        "official_start_date": OFFICIAL_START_TS,
         "last_updated": None,
         "round_trip_bps": CANONICAL_ROUND_TRIP_BPS,
         "symbols": UNIVERSE_SYMBOLS,
@@ -82,7 +86,36 @@ def save_state(state: Dict[str, Any]):
         json.dump(state, f, indent=2, default=str)
 
 
-def append_to_ledger(record: Dict[str, Any]):
+def get_last_ledger_hash() -> str:
+    """Read the last line from the ledger file and return its entry_hash, or 64 zeros if empty/missing."""
+    if not os.path.exists(LEDGER_FILE) or os.path.getsize(LEDGER_FILE) == 0:
+        return "0" * 64
+
+    last_line = ""
+    with open(LEDGER_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                last_line = line.strip()
+
+    if not last_line:
+        return "0" * 64
+
+    try:
+        data = json.loads(last_line)
+        return data.get("entry_hash", hashlib.sha256(last_line.encode("utf-8")).hexdigest())
+    except Exception:
+        return hashlib.sha256(last_line.encode("utf-8")).hexdigest()
+
+
+def append_to_hash_chained_ledger(record: Dict[str, Any]):
+    prev_hash = get_last_ledger_hash()
+    record["prev_hash"] = prev_hash
+    
+    # Compute canonical hash of the record payload
+    payload_str = json.dumps(record, sort_keys=True, default=str)
+    entry_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+    record["entry_hash"] = entry_hash
+
     with open(LEDGER_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, default=str) + "\n")
 
@@ -90,7 +123,6 @@ def append_to_ledger(record: Dict[str, Any]):
 def compute_target_weights_for_bar(
     panel: Dict[str, pd.DataFrame],
     bar_idx: int,
-    ts: pd.Timestamp,
 ) -> Dict[str, Dict[str, float]]:
     n_syms = len(UNIVERSE_SYMBOLS)
     
@@ -99,12 +131,12 @@ def compute_target_weights_for_bar(
     for s, df in panel.items():
         sub_df = df.iloc[: bar_idx + 1]
         w_series = generate_single_ema_weights(sub_df, span=50)
-        ema50_targets[s] = (float(w_series.iloc[-1]) / n_syms)
+        ema50_targets[s] = float(w_series.iloc[-1]) / n_syms
 
-    # 2. Arm B: Buy & Hold (always 1/N per asset)
+    # 2. Arm B: Buy & Hold
     bh_targets = {s: 1.0 / n_syms for s in UNIVERSE_SYMBOLS}
 
-    # 3. Arm C: Static 45% Exposure (rebalance on 1st day of month, else maintain weight)
+    # 3. Arm C: Static 45% Exposure
     static_targets = {s: 0.45 / n_syms for s in UNIVERSE_SYMBOLS}
 
     return {
@@ -116,8 +148,7 @@ def compute_target_weights_for_bar(
 
 def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
     """
-    Executes daily tracker with catch-up: identifies all unprocessed closed bars
-    and advances state sequentially.
+    Executes daily tracker with catch-up and cryptographic hash-chaining.
     """
     state = initialize_or_load_state()
     panel = load_panel_universe(timeframe=timeframe)
@@ -126,20 +157,21 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
     sample_df = next(iter(panel.values()))
     all_timestamps = sample_df.index
 
-    # Find the starting index for unprocessed bars
+    # Find the starting index for unprocessed bars on or after OFFICIAL_START_TS
+    official_start_dt = pd.to_datetime(OFFICIAL_START_TS, utc=True)
     last_updated_str = state["last_updated"]
+
     if last_updated_str is not None:
         last_dt = pd.to_datetime(last_updated_str, utc=True)
-        unprocessed_mask = all_timestamps > last_dt
+        unprocessed_mask = (all_timestamps > last_dt) & (all_timestamps >= official_start_dt)
     else:
-        # First initialization: process the last closed bar
-        unprocessed_mask = np.zeros(len(all_timestamps), dtype=bool)
-        unprocessed_mask[-1] = True
+        unprocessed_mask = all_timestamps >= official_start_dt
 
     unprocessed_indices = np.where(unprocessed_mask)[0]
 
     if len(unprocessed_indices) == 0:
-        print(f"Forward tracker: all bars up to {sample_df.index[-1].isoformat()} are already up to date.")
+        latest_avail = sample_df.index[-1].isoformat()
+        print(f"Forward tracker: up to date. Latest available bar is {latest_avail}. Waiting for next daily close >= {OFFICIAL_START_TS}.")
         return state
 
     print(f"Forward tracker: processing {len(unprocessed_indices)} pending closed bar(s)...")
@@ -149,7 +181,7 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
         ts_str = current_ts.to_pydatetime().isoformat()
         is_first_of_month = (current_ts.day == 1)
 
-        # Asset simple returns on this bar relative to prior bar
+        # Asset returns on this bar relative to prior bar
         if bar_idx == 0:
             asset_rets = {s: 0.0 for s in UNIVERSE_SYMBOLS}
         else:
@@ -158,8 +190,7 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
                 for s in UNIVERSE_SYMBOLS
             }
 
-        arm_targets = compute_target_weights_for_bar(panel, bar_idx, current_ts)
-
+        arm_targets = compute_target_weights_for_bar(panel, bar_idx)
         ledger_entry = {"timestamp": ts_str, "arms": {}}
 
         for arm_name, arm_data in state["arms"].items():
@@ -168,7 +199,6 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
 
             # Rebalancing logic for Arm C: only rebalance on 1st of month, else drift
             if arm_name == "Static_Exposure_45pct" and not is_first_of_month and state["last_updated"] is not None:
-                # Drift with price
                 active_weights = prev_weights
                 turnover = 0.0
                 friction_pct = 0.0
@@ -202,13 +232,10 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
             }
 
         state["last_updated"] = ts_str
-        append_to_ledger(ledger_entry)
+        append_to_hash_chained_ledger(ledger_entry)
 
     save_state(state)
     print(f"Forward tracker updated to: {state['last_updated']}.")
-    for name, arm in state["arms"].items():
-        print(f"  [{name}] Equity: ${arm['current_equity']:.2f} | MaxDD: {arm['max_drawdown']*100:.2f}% | Turnover: {arm['total_turnover']:.2f}")
-
     return state
 
 
