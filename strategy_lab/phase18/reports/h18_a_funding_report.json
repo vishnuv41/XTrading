@@ -1,0 +1,679 @@
+{
+  "hypothesis": "H18_A_Funding",
+  "dataset_window": "Development (2020\u20132025)",
+  "baseline_metrics": {
+    "net_annualized_return": 0.9341376343517787,
+    "gross_annualized_return": 1.0188434186137907,
+    "net_sharpe": 1.4841436710827958,
+    "gross_sharpe": 1.5638411233041247,
+    "max_drawdown": -0.5647277796383262,
+    "annualized_turnover": 28.590502909393184,
+    "turnover_drag_annualized": 0.04288575436408978
+  },
+  "results": [
+    {
+      "candidate_id": "H18A_contrarian_L14d_W25pct",
+      "mode": "contrarian",
+      "lookback_days": 14,
+      "overlay_weight": 0.25,
+      "metrics": {
+        "net_annualized_return": 0.801980628277333,
+        "gross_annualized_return": 0.9230381638007368,
+        "net_sharpe": 1.344162691066974,
+        "gross_sharpe": 1.4639206252588863,
+        "max_drawdown": -0.5625534560765618,
+        "annualized_turnover": 43.4141206848077,
+        "turnover_drag_annualized": 0.06512118102721155
+      },
+      "delta_sharpe": -0.13998098001582182,
+      "delta_return": -0.1321570060744457,
+      "bootstrap": {
+        "point_delta_sharpe": -0.13998098001582182,
+        "ci_lower": -0.2603306621073271,
+        "ci_upper": -0.015335969284209425,
+        "p_value_one_tailed": 0.9853
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.1321570060744457,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.13998098001582182,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.2603306621073271,
+          "ci_upper": -0.015335969284209425,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.2842554060859932,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.06512118102721155,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 1.0122013699286292,
+              "max_drawdown_pct": 22.63337217890537,
+              "net_return_pct": 47.74322795349089,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 2.7537719937243588,
+              "max_drawdown_pct": 44.583365908803984,
+              "net_return_pct": 720.7923965297508,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.6088864592882446,
+              "max_drawdown_pct": 39.56215554222474,
+              "net_return_pct": -37.380433244102086,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.3905965330051475,
+              "max_drawdown_pct": 27.371077199144295,
+              "net_return_pct": 52.49343036588954,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.1121619673587997,
+              "max_drawdown_pct": 34.7739568906958,
+              "net_return_pct": 45.495194665834426,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_contrarian_L14d_W50pct",
+      "mode": "contrarian",
+      "lookback_days": 14,
+      "overlay_weight": 0.5,
+      "metrics": {
+        "net_annualized_return": 0.6740907658178483,
+        "gross_annualized_return": 0.8249931043906158,
+        "net_sharpe": 1.2033299584790036,
+        "gross_sharpe": 1.3614415919975935,
+        "max_drawdown": -0.5773791317497685,
+        "annualized_turnover": 57.64562382800842,
+        "turnover_drag_annualized": 0.08646843574201263
+      },
+      "delta_sharpe": -0.2808137126037922,
+      "delta_return": -0.26004686853393033,
+      "bootstrap": {
+        "point_delta_sharpe": -0.2808137126037922,
+        "ci_lower": -0.5157830492292753,
+        "ci_upper": -0.03792955178025929,
+        "p_value_one_tailed": 0.9894
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.26004686853393033,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.2808137126037922,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.5157830492292753,
+          "ci_upper": -0.03792955178025929,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.124213272577964,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.08646843574201263,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 1.1863463865511787,
+              "max_drawdown_pct": 20.380957198365742,
+              "net_return_pct": 58.604325681830026,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 2.434835928102101,
+              "max_drawdown_pct": 47.253103878513606,
+              "net_return_pct": 540.9839251938151,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.4803135693999048,
+              "max_drawdown_pct": 37.85541412539654,
+              "net_return_pct": -35.37944957747473,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.30490393790181,
+              "max_drawdown_pct": 26.342715746238593,
+              "net_return_pct": 46.56179117567301,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 0.8975318199265719,
+              "max_drawdown_pct": 34.547699119107115,
+              "net_return_pct": 32.23633623744124,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_contrarian_L30d_W25pct",
+      "mode": "contrarian",
+      "lookback_days": 30,
+      "overlay_weight": 0.25,
+      "metrics": {
+        "net_annualized_return": 0.803332358920382,
+        "gross_annualized_return": 0.9181452653627484,
+        "net_sharpe": 1.3499643933719017,
+        "gross_sharpe": 1.4644718395165688,
+        "max_drawdown": -0.5669844030337693,
+        "annualized_turnover": 41.207643543612896,
+        "turnover_drag_annualized": 0.06181146531541932
+      },
+      "delta_sharpe": -0.1341792777108941,
+      "delta_return": -0.13080527543139664,
+      "bootstrap": {
+        "point_delta_sharpe": -0.1341792777108941,
+        "ci_lower": -0.2542718413297322,
+        "ci_upper": -0.0059857709498060685,
+        "p_value_one_tailed": 0.9798
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.13080527543139664,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.1341792777108941,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.2542718413297322,
+          "ci_upper": -0.0059857709498060685,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.2926853266932437,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.06181146531541932,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 1.0568342362280068,
+              "max_drawdown_pct": 23.103686201632502,
+              "net_return_pct": 50.76680565399527,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 2.762276075821444,
+              "max_drawdown_pct": 44.09498497697757,
+              "net_return_pct": 728.0827477987269,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.6413879192147411,
+              "max_drawdown_pct": 38.57312824621665,
+              "net_return_pct": -37.00728307799659,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.4157880270083123,
+              "max_drawdown_pct": 26.883667037838006,
+              "net_return_pct": 52.55237503161325,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.0742894890324703,
+              "max_drawdown_pct": 34.01805181511651,
+              "net_return_pct": 42.64869065192316,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_contrarian_L30d_W50pct",
+      "mode": "contrarian",
+      "lookback_days": 30,
+      "overlay_weight": 0.5,
+      "metrics": {
+        "net_annualized_return": 0.68025974664588,
+        "gross_annualized_return": 0.8201801276074461,
+        "net_sharpe": 1.2043910463088383,
+        "gross_sharpe": 1.3507806256871373,
+        "max_drawdown": -0.5968068581657737,
+        "annualized_turnover": 53.42055377436969,
+        "turnover_drag_annualized": 0.08013083066155453
+      },
+      "delta_sharpe": -0.27975262477395746,
+      "delta_return": -0.2538778877058987,
+      "bootstrap": {
+        "point_delta_sharpe": -0.27975262477395746,
+        "ci_lower": -0.5187099051261768,
+        "ci_upper": -0.027799009877066662,
+        "p_value_one_tailed": 0.9844
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.2538778877058987,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": -0.27975262477395746,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.5187099051261768,
+          "ci_upper": -0.027799009877066662,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.1311438055747736,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.08013083066155453,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 1.2910232387244138,
+              "max_drawdown_pct": 21.32465434937241,
+              "net_return_pct": 65.65286735796609,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 2.4265480244084787,
+              "max_drawdown_pct": 46.51422912380988,
+              "net_return_pct": 560.4808084059349,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.5326100670295804,
+              "max_drawdown_pct": 35.76974995359485,
+              "net_return_pct": -34.57673849749072,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.3404700159777316,
+              "max_drawdown_pct": 25.304906746049248,
+              "net_return_pct": 46.03340654104853,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 0.8107718775318357,
+              "max_drawdown_pct": 33.058363117880646,
+              "net_return_pct": 27.1198142642743,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_momentum_L14d_W25pct",
+      "mode": "momentum",
+      "lookback_days": 14,
+      "overlay_weight": 0.25,
+      "metrics": {
+        "net_annualized_return": 0.8901748702435806,
+        "gross_annualized_return": 1.0157100609061578,
+        "net_sharpe": 1.4933646236677551,
+        "gross_sharpe": 1.6191070451032923,
+        "max_drawdown": -0.5909884088921837,
+        "annualized_turnover": 42.91767804538537,
+        "turnover_drag_annualized": 0.06437651706807808
+      },
+      "delta_sharpe": 0.009220952584959363,
+      "delta_return": -0.043962764108198105,
+      "bootstrap": {
+        "point_delta_sharpe": 0.009220952584959363,
+        "ci_lower": -0.09877026993470886,
+        "ci_upper": 0.10903947640681338,
+        "p_value_one_tailed": 0.4442
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.043962764108198105,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.009220952584959363,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.09877026993470886,
+          "ci_upper": 0.10903947640681338,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.4304729147171107,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.06437651706807808,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 0.6680498311396181,
+              "max_drawdown_pct": 27.225877819705644,
+              "net_return_pct": 24.330153955074874,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 3.3018957182058863,
+              "max_drawdown_pct": 38.62142786911538,
+              "net_return_pct": 941.5876678822447,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.8999351146309023,
+              "max_drawdown_pct": 43.25289525428345,
+              "net_return_pct": -42.1915446141219,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.4586955334538403,
+              "max_drawdown_pct": 30.03066321742636,
+              "net_return_pct": 57.47999482331632,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.3267909215347373,
+              "max_drawdown_pct": 34.00427390673349,
+              "net_return_pct": 58.7004983708127,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_momentum_L14d_W50pct",
+      "mode": "momentum",
+      "lookback_days": 14,
+      "overlay_weight": 0.5,
+      "metrics": {
+        "net_annualized_return": 0.8398050320788977,
+        "gross_annualized_return": 1.000005333150193,
+        "net_sharpe": 1.4908942231103435,
+        "gross_sharpe": 1.6623092461457223,
+        "max_drawdown": -0.6120453590554548,
+        "annualized_turnover": 55.743036303340475,
+        "turnover_drag_annualized": 0.08361455445501072
+      },
+      "delta_sharpe": 0.006750552027547707,
+      "delta_return": -0.09433260227288098,
+      "bootstrap": {
+        "point_delta_sharpe": 0.006750552027547707,
+        "ci_lower": -0.204871616545078,
+        "ci_upper": 0.20490310615362137,
+        "p_value_one_tailed": 0.4867
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.09433260227288098,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.006750552027547707,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.204871616545078,
+          "ci_upper": 0.20490310615362137,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.4051398494447107,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 999.0,
+          "annual_drag": 0.08361455445501072,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 0.48844206866075096,
+              "max_drawdown_pct": 29.04133900638729,
+              "net_return_pct": 12.281141561890173,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 3.516013977105149,
+              "max_drawdown_pct": 35.129149097343834,
+              "net_return_pct": 941.6230071952931,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -2.0615395099979192,
+              "max_drawdown_pct": 45.75255390095009,
+              "net_return_pct": -44.7396598967834,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.4139283511296292,
+              "max_drawdown_pct": 31.906057898637307,
+              "net_return_pct": 54.261777529543394,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.3293055243506509,
+              "max_drawdown_pct": 33.36905982080651,
+              "net_return_pct": 56.646034220903644,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_momentum_L30d_W25pct",
+      "mode": "momentum",
+      "lookback_days": 30,
+      "overlay_weight": 0.25,
+      "metrics": {
+        "net_annualized_return": 0.9048676968803286,
+        "gross_annualized_return": 1.0238440934809172,
+        "net_sharpe": 1.503080406631653,
+        "gross_sharpe": 1.620834169995547,
+        "max_drawdown": -0.5789571169137844,
+        "annualized_turnover": 40.43806992529048,
+        "turnover_drag_annualized": 0.06065710488793573
+      },
+      "delta_sharpe": 0.01893673554885722,
+      "delta_return": -0.029269937471450014,
+      "bootstrap": {
+        "point_delta_sharpe": 0.01893673554885722,
+        "ci_lower": -0.07602749185844526,
+        "ci_upper": 0.10823094140578111,
+        "p_value_one_tailed": 0.3499
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.029269937471450014,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.01893673554885722,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.07602749185844526,
+          "ci_upper": 0.10823094140578111,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.444183279744999,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 12.129783779122281,
+          "annual_drag": 0.06065710488793573,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 0.6855267227293076,
+              "max_drawdown_pct": 26.60552114685217,
+              "net_return_pct": 25.56755143510887,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 3.28095744362456,
+              "max_drawdown_pct": 38.744013566387444,
+              "net_return_pct": 933.5901056596466,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.855859197276987,
+              "max_drawdown_pct": 43.33868109084552,
+              "net_return_pct": -41.995551444311296,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.4180624143490594,
+              "max_drawdown_pct": 29.957000543041,
+              "net_return_pct": 55.72183351455207,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.427553701563531,
+              "max_drawdown_pct": 34.55516636530839,
+              "net_return_pct": 66.1003321691798,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    },
+    {
+      "candidate_id": "H18A_momentum_L30d_W50pct",
+      "mode": "momentum",
+      "lookback_days": 30,
+      "overlay_weight": 0.5,
+      "metrics": {
+        "net_annualized_return": 0.8861073163411277,
+        "gross_annualized_return": 1.0362062157990315,
+        "net_sharpe": 1.5289034096972713,
+        "gross_sharpe": 1.6840070699841476,
+        "max_drawdown": -0.5890513473478591,
+        "annualized_turnover": 51.131653289241605,
+        "turnover_drag_annualized": 0.07669747993386242
+      },
+      "delta_sharpe": 0.044759738614475575,
+      "delta_return": -0.04803031801065094,
+      "bootstrap": {
+        "point_delta_sharpe": 0.044759738614475575,
+        "ci_lower": -0.1400043348624259,
+        "ci_upper": 0.22002125225699828,
+        "p_value_one_tailed": 0.3166
+      },
+      "gates": {
+        "gate_1_incremental_net_return": {
+          "delta_return": -0.04803031801065094,
+          "pass": false
+        },
+        "gate_2_incremental_sharpe": {
+          "delta_sharpe": 0.044759738614475575,
+          "pass": false
+        },
+        "gate_3_paired_bootstrap_ci": {
+          "ci_lower": -0.1400043348624259,
+          "ci_upper": 0.22002125225699828,
+          "pass": false
+        },
+        "gate_4_friction_robustness": {
+          "sharpe_45bps": 1.4513057851218882,
+          "pass": true
+        },
+        "gate_5_turnover_efficiency": {
+          "drag_ratio": 4.417345840971919,
+          "annual_drag": 0.07669747993386242,
+          "pass": false
+        },
+        "gate_6_regime_stability": {
+          "yearly_breakdown": {
+            "2020": {
+              "net_sharpe": 0.5205183981354948,
+              "max_drawdown_pct": 28.187905634050097,
+              "net_return_pct": 14.365914409245706,
+              "pass": true
+            },
+            "2021": {
+              "net_sharpe": 3.4931260345901474,
+              "max_drawdown_pct": 35.313286655782434,
+              "net_return_pct": 950.7546142688662,
+              "pass": true
+            },
+            "2022": {
+              "net_sharpe": -1.9543648522923243,
+              "max_drawdown_pct": 45.03500890872465,
+              "net_return_pct": -43.86097567831799,
+              "pass": false
+            },
+            "2023": {
+              "net_sharpe": 1.3546296274784242,
+              "max_drawdown_pct": 31.607120402146172,
+              "net_return_pct": 51.97003722404199,
+              "pass": true
+            },
+            "2024": {
+              "net_sharpe": 1.5405363567583088,
+              "max_drawdown_pct": 34.1837998166745,
+              "net_return_pct": 71.78087504828754,
+              "pass": true
+            }
+          },
+          "pass": false
+        }
+      },
+      "all_gates_passed": false
+    }
+  ]
+}
