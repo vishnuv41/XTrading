@@ -1,0 +1,30 @@
+{
+  "phase": "Phase 21 — Baseline Edge Decomposition & Forensic Attribution",
+  "version": "1.0.0",
+  "created_at": "2026-10-05T13:45:00Z",
+  "firewall_rule": "STRICT_ISOLATION: Phase 21 evaluates historical data up to 2026-09-30 23:59:59 UTC. Phase 17 forward tracker is isolated.",
+  "universe": [
+    "BTC/USDT",
+    "ETH/USDT",
+    "BNB/USDT",
+    "XRP/USDT",
+    "ADA/USDT",
+    "LTC/USDT",
+    "SOL/USDT",
+    "DOGE/USDT",
+    "LINK/USDT"
+  ],
+  "timeline_boundaries": {
+    "start_ts": "2020-08-11 00:00:00+00:00",
+    "end_ts": "2026-09-30 23:59:59+00:00"
+  },
+  "canonical_strategy": "Trend_EMA_50",
+  "canonical_friction_bps": 30.0,
+  "friction_sweep_bps": [0.0, 10.0, 20.0, 30.0, 40.0, 45.0, 50.0, 60.0, 75.0, 100.0],
+  "benchmarks": [
+    "Buy_and_Hold",
+    "Static_45pct_Cash",
+    "Trend_EMA_20",
+    "Trend_EMA_100"
+  ]
+}

@@ -1,0 +1,406 @@
+{
+  "portfolio_summary_30bps": {
+    "net_annualized_return": 0.5912650460899156,
+    "gross_annualized_return": 0.659478349964802,
+    "net_sharpe": 1.1877717864460815,
+    "gross_sharpe": 1.2737258216545575,
+    "max_drawdown": -0.5647277796383262,
+    "annualized_turnover": 28.002862027951238,
+    "turnover_drag_annualized": 0.042004293041926856
+  },
+  "asset_attribution": {
+    "BTC/USDT": {
+      "net_annualized_return_pct": 45.9178086736659,
+      "net_sharpe": 1.1371231214960784,
+      "max_drawdown_pct": 57.343322686262695,
+      "total_trades": 72,
+      "win_rate_pct": 33.33333333333333,
+      "avg_win_pct": 30.13417082342437,
+      "avg_loss_pct": -4.673210275418804,
+      "profit_factor": 3.224140264127512,
+      "turnover_drag_pct": 3.494474799286352
+    },
+    "ETH/USDT": {
+      "net_annualized_return_pct": 33.23792382281185,
+      "net_sharpe": 0.7988535714056919,
+      "max_drawdown_pct": 62.15804457267957,
+      "total_trades": 85,
+      "win_rate_pct": 37.64705882352941,
+      "avg_win_pct": 20.37705615002875,
+      "avg_loss_pct": -5.343273308013989,
+      "profit_factor": 2.30254518762389,
+      "turnover_drag_pct": 4.129833853702053
+    },
+    "BNB/USDT": {
+      "net_annualized_return_pct": 73.69443394963666,
+      "net_sharpe": 1.1492809018839907,
+      "max_drawdown_pct": 58.910407538267876,
+      "total_trades": 82,
+      "win_rate_pct": 40.243902439024396,
+      "avg_win_pct": 58.75080328850628,
+      "avg_loss_pct": -3.014849917692785,
+      "profit_factor": 13.123992437776344,
+      "turnover_drag_pct": 3.983212533452275
+    },
+    "XRP/USDT": {
+      "net_annualized_return_pct": 9.536443019146779,
+      "net_sharpe": 0.4753001453402109,
+      "max_drawdown_pct": 84.75504711214154,
+      "total_trades": 93,
+      "win_rate_pct": 30.107526881720432,
+      "avg_win_pct": 26.195106286107226,
+      "avg_loss_pct": -5.291345185411052,
+      "profit_factor": 2.132547658371691,
+      "turnover_drag_pct": 4.520824041034792
+    },
+    "ADA/USDT": {
+      "net_annualized_return_pct": 37.02630221884484,
+      "net_sharpe": 0.7957012134274134,
+      "max_drawdown_pct": 74.3463908285133,
+      "total_trades": 93,
+      "win_rate_pct": 31.182795698924732,
+      "avg_win_pct": 36.8335743499898,
+      "avg_loss_pct": -5.81655278561713,
+      "profit_factor": 2.8694338369299794,
+      "turnover_drag_pct": 4.520824041034792
+    },
+    "LTC/USDT": {
+      "net_annualized_return_pct": -14.664124617942175,
+      "net_sharpe": 0.07848987280616714,
+      "max_drawdown_pct": 93.21936444740801,
+      "total_trades": 99,
+      "win_rate_pct": 26.262626262626267,
+      "avg_win_pct": 16.313013273937777,
+      "avg_loss_pct": -5.262143651687922,
+      "profit_factor": 1.1041344937212552,
+      "turnover_drag_pct": 4.814066681534346
+    },
+    "SOL/USDT": {
+      "net_annualized_return_pct": 95.4160732312152,
+      "net_sharpe": 1.2210698062816905,
+      "max_drawdown_pct": 72.50286195465961,
+      "total_trades": 83,
+      "win_rate_pct": 36.144578313253014,
+      "avg_win_pct": 117.32260541855287,
+      "avg_loss_pct": -7.289740931919757,
+      "profit_factor": 9.109928947439435,
+      "turnover_drag_pct": 4.032086306868869
+    },
+    "DOGE/USDT": {
+      "net_annualized_return_pct": 90.01866562088792,
+      "net_sharpe": 0.7883682666828729,
+      "max_drawdown_pct": 88.9123097296574,
+      "total_trades": 79,
+      "win_rate_pct": 41.77215189873418,
+      "avg_win_pct": 379.7957348698553,
+      "avg_loss_pct": -6.800310884563057,
+      "profit_factor": 40.066132600279396,
+      "turnover_drag_pct": 3.8365912132024995
+    },
+    "LINK/USDT": {
+      "net_annualized_return_pct": -7.619869996704109,
+      "net_sharpe": 0.2363184638774504,
+      "max_drawdown_pct": 86.77077940058284,
+      "total_trades": 92,
+      "win_rate_pct": 31.521739130434785,
+      "avg_win_pct": 16.694197673113997,
+      "avg_loss_pct": -5.848065650527367,
+      "profit_factor": 1.31404658123708,
+      "turnover_drag_pct": 4.471950267618199
+    }
+  },
+  "yearly_attribution": {
+    "2020": {
+      "net_annualized_return_pct": 36.29524737403336,
+      "net_sharpe": 0.8363984317979231,
+      "max_drawdown_pct": 24.8684621154004,
+      "average_exposure_pct": 54.623154623154626,
+      "annualized_turnover": 42.002331002331005
+    },
+    "2021": {
+      "net_annualized_return_pct": 923.4291125904693,
+      "net_sharpe": 3.0842788700374135,
+      "max_drawdown_pct": 42.079844794098406,
+      "average_exposure_pct": 63.31811263318112,
+      "annualized_turnover": 21.347945205479455
+    },
+    "2022": {
+      "net_annualized_return_pct": -39.3471208452983,
+      "net_sharpe": -1.7160200739474905,
+      "max_drawdown_pct": 41.24260059133431,
+      "average_exposure_pct": 23.6834094368341,
+      "annualized_turnover": 25.79543378995434
+    },
+    "2023": {
+      "net_annualized_return_pct": 59.607870666685095,
+      "net_sharpe": 1.4791775570171362,
+      "max_drawdown_pct": 27.97780736021909,
+      "average_exposure_pct": 56.10350076103501,
+      "annualized_turnover": 29.464611872146122
+    },
+    "2024": {
+      "net_annualized_return_pct": 62.08750833571255,
+      "net_sharpe": 1.3403011305484134,
+      "max_drawdown_pct": 34.58883683761118,
+      "average_exposure_pct": 54.58409228901032,
+      "annualized_turnover": 32.48884335154827
+    },
+    "2025": {
+      "net_annualized_return_pct": -16.168009745356905,
+      "net_sharpe": -0.3075868331416422,
+      "max_drawdown_pct": 29.23008478811179,
+      "average_exposure_pct": 42.55707762557077,
+      "annualized_turnover": 28.24155251141553
+    },
+    "2026": {
+      "net_annualized_return_pct": 19.11256448081884,
+      "net_sharpe": 0.7655130604058417,
+      "max_drawdown_pct": 20.57385441830301,
+      "average_exposure_pct": 34.391534391534385,
+      "annualized_turnover": 24.231074481074483
+    }
+  },
+  "regime_attribution": {
+    "bull_market_regime": {
+      "days_count": 904,
+      "days_pct": 40.32114183764496,
+      "annualized_net_return_pct": 313.415774756812,
+      "daily_mean_bps": 85.80856256175552,
+      "win_day_pct": 63.38495575221239
+    },
+    "sideways_chop_regime": {
+      "days_count": 390,
+      "days_pct": 17.395182872435324,
+      "annualized_net_return_pct": -168.82651383674073,
+      "daily_mean_bps": -46.22218037966893,
+      "win_day_pct": 45.64102564102564
+    },
+    "bear_market_regime": {
+      "days_count": 948,
+      "days_pct": 42.283675289919714,
+      "annualized_net_return_pct": -92.00352485531015,
+      "daily_mean_bps": -25.189192294403874,
+      "win_day_pct": 17.827004219409282
+    }
+  },
+  "trade_expectancy": {
+    "total_trades_across_universe": 778,
+    "win_rate_pct": 33.933161953727506,
+    "median_trade_pct": -1.9237725731676627,
+    "mean_trade_pct": 24.74773688389193,
+    "average_winner_pct": 83.6246459399584,
+    "average_loser_pct": -5.4925432538542704,
+    "payoff_ratio": 15.225122875687262,
+    "overall_profit_factor": 7.819907469224576,
+    "top_5_trades_profit_share_pct": 78.15220221004033,
+    "top_10pct_trades_profit_share_pct": 97.40146816352986,
+    "bottom_5_trades_loss_share_pct": 5.861899586218109,
+    "top_5_trades_list": [
+      {
+        "entry_date": "2020-12-13 00:00:00+00:00",
+        "exit_date": "2021-05-20 00:00:00+00:00",
+        "entry_price": 0.00326,
+        "exit_price": 0.39758,
+        "holding_days": 158,
+        "gross_return_pct": 12095.705521472393,
+        "net_return_pct": 12095.405521472394,
+        "is_win": true,
+        "symbol": "DOGE/USDT"
+      },
+      {
+        "entry_date": "2021-01-02 00:00:00+00:00",
+        "exit_date": "2021-05-20 00:00:00+00:00",
+        "entry_price": 1.7999,
+        "exit_price": 44.42,
+        "holding_days": 138,
+        "gross_return_pct": 2367.914884160231,
+        "net_return_pct": 2367.6148841602308,
+        "is_win": true,
+        "symbol": "SOL/USDT"
+      },
+      {
+        "entry_date": "2020-12-14 00:00:00+00:00",
+        "exit_date": "2021-05-18 00:00:00+00:00",
+        "entry_price": 30.0338,
+        "exit_price": 507.88,
+        "holding_days": 155,
+        "gross_return_pct": 1591.0281083312802,
+        "net_return_pct": 1590.72810833128,
+        "is_win": true,
+        "symbol": "BNB/USDT"
+      },
+      {
+        "entry_date": "2020-12-25 00:00:00+00:00",
+        "exit_date": "2021-04-23 00:00:00+00:00",
+        "entry_price": 0.15761,
+        "exit_price": 1.15866,
+        "holding_days": 119,
+        "gross_return_pct": 635.1437091555105,
+        "net_return_pct": 634.8437091555104,
+        "is_win": true,
+        "symbol": "ADA/USDT"
+      },
+      {
+        "entry_date": "2021-07-30 00:00:00+00:00",
+        "exit_date": "2021-11-19 00:00:00+00:00",
+        "entry_price": 32.354,
+        "exit_price": 215.25,
+        "holding_days": 112,
+        "gross_return_pct": 565.2964084811771,
+        "net_return_pct": 564.996408481177,
+        "is_win": true,
+        "symbol": "SOL/USDT"
+      }
+    ],
+    "bottom_5_trades_list": [
+      {
+        "entry_date": "2025-10-02 00:00:00+00:00",
+        "exit_date": "2025-10-11 00:00:00+00:00",
+        "entry_price": 0.262,
+        "exit_price": 0.18527,
+        "holding_days": 9,
+        "gross_return_pct": -29.286259541984737,
+        "net_return_pct": -29.586259541984738,
+        "is_win": false,
+        "symbol": "DOGE/USDT"
+      },
+      {
+        "entry_date": "2022-10-26 00:00:00+00:00",
+        "exit_date": "2022-11-09 00:00:00+00:00",
+        "entry_price": 1566.1,
+        "exit_price": 1102.73,
+        "holding_days": 14,
+        "gross_return_pct": -29.587510376093473,
+        "net_return_pct": -29.887510376093473,
+        "is_win": false,
+        "symbol": "ETH/USDT"
+      },
+      {
+        "entry_date": "2022-11-05 00:00:00+00:00",
+        "exit_date": "2022-11-08 00:00:00+00:00",
+        "entry_price": 36.9,
+        "exit_price": 24.38,
+        "holding_days": 3,
+        "gross_return_pct": -33.92953929539295,
+        "net_return_pct": -34.229539295392954,
+        "is_win": false,
+        "symbol": "SOL/USDT"
+      },
+      {
+        "entry_date": "2022-11-04 00:00:00+00:00",
+        "exit_date": "2022-11-09 00:00:00+00:00",
+        "entry_price": 0.5064,
+        "exit_price": 0.3331,
+        "holding_days": 5,
+        "gross_return_pct": -34.22195892575039,
+        "net_return_pct": -34.52195892575039,
+        "is_win": false,
+        "symbol": "XRP/USDT"
+      },
+      {
+        "entry_date": "2021-05-21 00:00:00+00:00",
+        "exit_date": "2021-05-23 00:00:00+00:00",
+        "entry_price": 38.925,
+        "exit_price": 24.536,
+        "holding_days": 2,
+        "gross_return_pct": -36.965960179833004,
+        "net_return_pct": -37.265960179833,
+        "is_win": false,
+        "symbol": "SOL/USDT"
+      }
+    ]
+  },
+  "exposure_analysis": {
+    "mean_exposure_pct": 46.80840519377539,
+    "pct_time_in_full_cash": 22.123104371097234,
+    "pct_time_fully_invested": 19.93755575379126,
+    "pct_time_partially_invested": 57.93933987511151
+  },
+  "friction_sensitivity": {
+    "friction_curve": {
+      "0bps": {
+        "net_sharpe": 1.2737258216545575,
+        "net_annualized_return_pct": 65.9478349964802,
+        "max_drawdown_pct": 52.432585484702784
+      },
+      "10bps": {
+        "net_sharpe": 1.2450800720922164,
+        "net_annualized_return_pct": 63.64247542459325,
+        "max_drawdown_pct": 53.738083924551894
+      },
+      "20bps": {
+        "net_sharpe": 1.2164285682452318,
+        "net_annualized_return_pct": 61.36884281008468,
+        "max_drawdown_pct": 55.10930897451399
+      },
+      "30bps": {
+        "net_sharpe": 1.1877717864460815,
+        "net_annualized_return_pct": 59.12650460899156,
+        "max_drawdown_pct": 56.47277796383262
+      },
+      "40bps": {
+        "net_sharpe": 1.1591102032176221,
+        "net_annualized_return_pct": 56.91503411896895,
+        "max_drawdown_pct": 57.800889126146956
+      },
+      "45bps": {
+        "net_sharpe": 1.144777760023107,
+        "net_annualized_return_pct": 55.820742499190025,
+        "max_drawdown_pct": 58.44973286669861
+      },
+      "50bps": {
+        "net_sharpe": 1.130444295233495,
+        "net_annualized_return_pct": 54.734010401139386,
+        "max_drawdown_pct": 59.08864129146575
+      },
+      "60bps": {
+        "net_sharpe": 1.1017745392785212,
+        "net_annualized_return_pct": 52.58301820297948,
+        "max_drawdown_pct": 60.337255910545096
+      },
+      "75bps": {
+        "net_sharpe": 1.0587637335339153,
+        "net_annualized_return_pct": 49.41194442823256,
+        "max_drawdown_pct": 62.13937653390186
+      },
+      "100bps": {
+        "net_sharpe": 0.9870665731202188,
+        "net_annualized_return_pct": 44.271254345962376,
+        "max_drawdown_pct": 64.96350235234544
+      }
+    },
+    "break_even_bps": "> 100 bps"
+  },
+  "benchmark_comparison": {
+    "Trend_EMA_50 (Baseline)": {
+      "net_sharpe": 1.1877717864460815,
+      "net_annualized_return_pct": 59.12650460899156,
+      "max_drawdown_pct": 56.47277796383262,
+      "turnover_drag_pct": 4.200429304192686
+    },
+    "Buy_and_Hold": {
+      "net_sharpe": 1.0344511095353097,
+      "net_annualized_return_pct": 64.77861046904093,
+      "max_drawdown_pct": 78.67059693237653,
+      "turnover_drag_pct": 0.024436886708296187
+    },
+    "Static_45pct_Cash": {
+      "net_sharpe": 1.0344511095353097,
+      "net_annualized_return_pct": 41.362279724037634,
+      "max_drawdown_pct": 53.8801046122799,
+      "turnover_drag_pct": 0.013440287689562878
+    },
+    "Trend_EMA_20 (Fast)": {
+      "net_sharpe": 1.1537410601109062,
+      "net_annualized_return_pct": 49.65018719082239,
+      "max_drawdown_pct": 51.766895652406085,
+      "turnover_drag_pct": 6.796169714540591
+    },
+    "Trend_EMA_100 (Slow)": {
+      "net_sharpe": 1.155798160217734,
+      "net_annualized_return_pct": 58.576970167589806,
+      "max_drawdown_pct": 61.86455681859011,
+      "turnover_drag_pct": 2.674481489741304
+    }
+  }
+}
