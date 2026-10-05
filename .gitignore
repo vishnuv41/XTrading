@@ -62,3 +62,7 @@ htmlcov/
 # Temporary files
 *.tmp
 *.bak
+
+# Paper Trading Ephemeral State
+strategy_lab/paper/state/
+file
