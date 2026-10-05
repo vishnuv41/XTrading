@@ -21,9 +21,9 @@ def evaluate_exposure_matched_null(
     panel: Dict[str, pd.DataFrame],
     strategy_weights_dict: Dict[str, pd.Series],
     strategy_sharpe: float,
-    n_simulations: int = 1000,
+    n_simulations: int = 10000,
     round_trip_bps: float = CANONICAL_ROUND_TRIP_BPS,
-    seed: int = 123,
+    seed: int = 42,
 ) -> Tuple[float, float, float]:
     """
     Computes empirical p-value and null distribution stats.

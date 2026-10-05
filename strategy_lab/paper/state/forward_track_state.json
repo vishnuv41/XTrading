@@ -1,0 +1,108 @@
+{
+  "start_date": "2026-10-05T03:52:58.205053+00:00",
+  "last_updated": "2026-10-05T00:00:00+00:00",
+  "round_trip_bps": 30.0,
+  "symbols": [
+    "BTC/USDT",
+    "ETH/USDT",
+    "BNB/USDT",
+    "XRP/USDT",
+    "ADA/USDT",
+    "LTC/USDT",
+    "SOL/USDT",
+    "DOGE/USDT",
+    "LINK/USDT"
+  ],
+  "arms": {
+    "Trend_EMA_50": {
+      "initial_cash": 10000.0,
+      "current_equity": 9985.0,
+      "peak_equity": 10000.0,
+      "max_drawdown": -0.0015,
+      "total_turnover": 1.0000000000000002,
+      "total_friction_usd": 15.000000000000005,
+      "current_weights": {
+        "BTC/USDT": 0.1111111111111111,
+        "ETH/USDT": 0.1111111111111111,
+        "BNB/USDT": 0.1111111111111111,
+        "XRP/USDT": 0.1111111111111111,
+        "ADA/USDT": 0.1111111111111111,
+        "LTC/USDT": 0.1111111111111111,
+        "SOL/USDT": 0.1111111111111111,
+        "DOGE/USDT": 0.1111111111111111,
+        "LINK/USDT": 0.1111111111111111
+      },
+      "history": [
+        {
+          "timestamp": "2026-10-05T00:00:00+00:00",
+          "gross_return": 0.0,
+          "net_return": -0.0015000000000000005,
+          "friction_usd": 15.000000000000005,
+          "turnover": 1.0000000000000002,
+          "equity": 9985.0,
+          "drawdown": -0.0015
+        }
+      ]
+    },
+    "Buy_and_Hold": {
+      "initial_cash": 10000.0,
+      "current_equity": 10022.751779415818,
+      "peak_equity": 10022.751779415818,
+      "max_drawdown": 0.0,
+      "total_turnover": 0.0,
+      "total_friction_usd": 0.0,
+      "current_weights": {
+        "BTC/USDT": 0.1111111111111111,
+        "ETH/USDT": 0.1111111111111111,
+        "BNB/USDT": 0.1111111111111111,
+        "XRP/USDT": 0.1111111111111111,
+        "ADA/USDT": 0.1111111111111111,
+        "LTC/USDT": 0.1111111111111111,
+        "SOL/USDT": 0.1111111111111111,
+        "DOGE/USDT": 0.1111111111111111,
+        "LINK/USDT": 0.1111111111111111
+      },
+      "history": [
+        {
+          "timestamp": "2026-10-05T00:00:00+00:00",
+          "gross_return": 0.002275177941581669,
+          "net_return": 0.002275177941581669,
+          "friction_usd": 0.0,
+          "turnover": 0.0,
+          "equity": 10022.751779415818,
+          "drawdown": 0.0
+        }
+      ]
+    },
+    "Static_Exposure_45pct": {
+      "initial_cash": 10000.0,
+      "current_equity": 10010.238300737117,
+      "peak_equity": 10010.238300737117,
+      "max_drawdown": 0.0,
+      "total_turnover": 0.0,
+      "total_friction_usd": 0.0,
+      "current_weights": {
+        "BTC/USDT": 0.05,
+        "ETH/USDT": 0.05,
+        "BNB/USDT": 0.05,
+        "XRP/USDT": 0.05,
+        "ADA/USDT": 0.05,
+        "LTC/USDT": 0.05,
+        "SOL/USDT": 0.05,
+        "DOGE/USDT": 0.05,
+        "LINK/USDT": 0.05
+      },
+      "history": [
+        {
+          "timestamp": "2026-10-05T00:00:00+00:00",
+          "gross_return": 0.001023830073711751,
+          "net_return": 0.001023830073711751,
+          "friction_usd": 0.0,
+          "turnover": 0.0,
+          "equity": 10010.238300737117,
+          "drawdown": 0.0
+        }
+      ]
+    }
+  }
+}

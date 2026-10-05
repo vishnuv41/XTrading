@@ -58,8 +58,14 @@
 | TSMOM_60d | 11.6% | 33.4% | **0.348** | [-1.277, 1.997] | -28.4% | 0.41 | 16.67x | +0.201 |
 | Buy_and_Hold | 8.7% | 59.3% | **0.147** | [-1.349, 1.686] | -66.9% | 0.13 | 0.65x | 0.000 (Base) |
 
-## 4. Key Findings & Synthesis
+## 4. Key Findings & Empirical Synthesis
 
-- **Low Turnover Edge**: Low-turnover trend and momentum rules exhibit negligible drag under 30.0 bps retail friction due to low annual turnover ($< 5\text{x}$ annual turnover).
-- **Bear Regime Downside Protection**: Moving average trend filters (EMA 50, EMA 100, EMA 200) successfully avoid deep drawdowns in bear regimes compared to Buy & Hold.
-- **Holdout Generalization**: All advancing candidates evaluated without post-hoc modification on the single reserved holdout window.
+- **Static Exposure vs. Dynamic Timing**: Against a static cash/crypto mix matched to empirical time-in-market (~40–50% cash), dynamic trend timing does *not* consistently reduce maximum drawdown across all regimes:
+  - *Development (2020–2025)*: Trend MaxDD $-56.5\%$ vs. Static Exposure $-49.6\%$ (slightly worse).
+  - *Holdout (2025–2026)*: Trend MaxDD $-38.5\%$ vs. Static Exposure $-34.9\%$ (comparable).
+  - *Out-of-Time Crash (2018–2020)*: Trend MaxDD $-35.5\%$ vs. Static Exposure $-45.9\%$ (improved) and Full B&H $-81.0\%$.
+  - *Conclusion*: The drawdown reduction relative to 100% Buy & Hold is predominantly driven by holding ~40–50% cash (de-leveraging). Dynamic timing added return (+40.9% vs +7.4% static in 2018–2020), but does not systematically beat static cash on drawdown alone.
+- **Sharpe Outperformance is Unproven**: While point-estimate Net Sharpe improved over Buy & Hold across all three windows (+0.11 dev, +0.26 holdout, +0.78 out-of-time), all paired date-cluster 95% bootstrap CIs span zero.
+- **Episode Concentration**: The out-of-time $p < 0.01$ reflects defensive cash positioning during the single prolonged 2018 bear market episode, not a large sample of independent regime tests.
+- **Reference Baseline Selection**: `Trend_EMA_50` (Daily) is adopted as the single reference baseline strictly because it represents the midpoint of the empirical parameter plateau (EMA 20 to 100) with moderate turnover (23–28x/yr). No un-registered ensembles are introduced.
+- **Data Accounting**: Historical Binance data (2018–2026) is spent for these 16 trend/momentum rules. Any subsequent model or ML candidate must be judged against `Trend_EMA_50` on forward data.
