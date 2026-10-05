@@ -1,6 +1,6 @@
 # Phase 18 Funding Rate Data Integrity & Causality Audit Report
 
-**Generated**: 2026-10-05T06:53:57.534534+00:00  
+**Generated**: 2026-10-05T08:44:08.946357+00:00  
 **Firewall Boundary**: `2026-09-30 23:59:59+00:00`  
 **Earliest Common Start Across Universe**: `2020-09-13T16:00:00.004000+00:00`  
 **Latest Common End Across Universe**: `2026-09-30T16:00:00.002000+00:00`  

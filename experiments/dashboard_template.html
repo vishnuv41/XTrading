@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTrading Institutional Decision AI & Quant Cockpit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #080c14;
+            color: #f1f5f9;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+        .tab-btn.active {
+            background: rgba(30, 58, 138, 0.4);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .gradient-border-emerald {
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.08);
+        }
+        .gradient-border-amber {
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.08);
+        }
+        .gradient-border-rose {
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.08);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1120; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Institutional Header -->
+    <header class="glass-panel sticky top-0 z-50 px-6 py-3.5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-chart-line text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                        XTRADING <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">DECISION AI</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400 font-mono">Real-Time Intelligence & Validation Platform</p>
+                </div>
+            </div>
+
+            <!-- Validation Mode Badge -->
+            <div class="hidden md:flex items-center space-x-2 pl-4 border-l border-slate-800">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Validation Mode: Active
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Phase 17 Forward Test: <strong class="text-slate-200">FROZEN</strong></span>
+            </div>
+        </div>
+
+        <!-- Telemetry & Safety Switch -->
+        <div class="flex items-center space-x-3">
+            <div class="hidden lg:flex items-center space-x-4 text-xs font-mono bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                <span class="text-slate-400">Binance 1H: <strong class="text-emerald-400">STREAMING</strong></span>
+                <span class="text-slate-600">|</span>
+                <span class="text-slate-400">Data API: <strong class="text-blue-400">:8001 OK</strong></span>
+                <span class="text-slate-600">|</span>
+                <span class="text-slate-400">Daily Task: <strong class="text-purple-400">00:10 UTC</strong></span>
+            </div>
+
+            <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-mono font-semibold">
+                <i class="fa-solid fa-lock text-[10px]"></i>
+                <span>REAL MONEY: OFF</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs (7 Clean Tabs) -->
+    <nav class="bg-slate-900/60 px-6 border-b border-slate-800/80 flex space-x-1 overflow-x-auto">
+        <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn active px-4 py-3 text-xs font-semibold text-slate-300 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-house text-sm"></i> 1. Dashboard
+        </button>
+        <button onclick="switchTab('tradenow')" id="btn-tab-tradenow" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-crosshairs text-sm text-emerald-400"></i> 2. Trade Now
+        </button>
+        <button onclick="switchTab('scanner')" id="btn-tab-scanner" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-magnifying-glass text-sm text-blue-400"></i> 3. Market Scanner
+        </button>
+        <button onclick="switchTab('charts')" id="btn-tab-charts" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-chart-candlestick text-sm text-amber-400"></i> 4. Charts
+        </button>
+        <button onclick="switchTab('analytics')" id="btn-tab-analytics" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-chart-pie text-sm text-indigo-400"></i> 5. Analytics
+        </button>
+        <button onclick="switchTab('research')" id="btn-tab-research" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-flask text-sm text-purple-400"></i> 6. Research
+        </button>
+        <button onclick="switchTab('system')" id="btn-tab-system" class="tab-btn px-4 py-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-gears text-sm text-slate-400"></i> 7. System
+        </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 max-w-[1680px] mx-auto w-full">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: 🏠 DASHBOARD -->
+        <!-- ========================================== -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+            
+            <!-- Hero Market Tickers Grid -->
+            <div id="dashTickerGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Main Executive Spotlight -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left: Best Current Opportunity Card -->
+                <div id="dashTopSetupCard" class="lg:col-span-2 glass-panel p-6 rounded-2xl relative overflow-hidden border border-slate-700/80">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Right: Portfolio Health & Phase 17 Status -->
+                <div class="space-y-6">
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800" id="dashPortfolioCard">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Phase 17 Forward Tracker Card -->
+                    <div class="glass-panel p-5 rounded-2xl border border-purple-500/20 bg-purple-950/10">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 font-mono">Phase 17 Forward Test</h3>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">LOCKED</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            Daily Hash-Chained Forward Validation running via Windows Task Scheduler. Zero parameter modifications allowed.
+                        </p>
+                        <div class="text-[11px] font-mono text-slate-400 space-y-1">
+                            <div>• Target: <strong class="text-slate-200">N ≥ 60 Unobserved Days</strong></div>
+                            <div>• Model: <strong class="text-slate-200">EMA50 Low-Turnover Benchmark</strong></div>
+                            <div>• Scheduled: <strong class="text-slate-200">Daily 00:10 UTC (05:40 IST)</strong></div>
+                            <div>• Hashing: <strong class="text-emerald-400">SHA-256 Ledger Verified</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Live Scanner Summary Table -->
+            <div class="glass-panel rounded-2xl p-5 border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-blue-400"></i> Multi-Asset Live Scanner Summary
+                    </h3>
+                    <button onclick="switchTab('scanner')" class="text-xs text-blue-400 hover:text-blue-300 font-mono">View Full Scanner →</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">Asset</th>
+                                <th class="p-3">Price</th>
+                                <th class="p-3">Regime</th>
+                                <th class="p-3">Setup</th>
+                                <th class="p-3">R:R</th>
+                                <th class="p-3">Score</th>
+                                <th class="p-3">Decision</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800" id="dashScannerTbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: 🎯 TRADE NOW -->
+        <!-- ========================================== -->
+        <div id="tab-tradenow" class="tab-content hidden space-y-6">
+            
+            <!-- Asset Selector & Control Header -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <label class="text-xs text-slate-400 font-mono font-semibold">SELECTED PAIR:</label>
+                    <select id="tradeNowAssetSelect" onchange="loadTradeNowAnalysis()" class="bg-slate-900 text-white font-mono font-bold text-sm px-4 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-blue-500">
+                        <option value="BTC/USDT">BTC/USDT</option>
+                        <option value="ETH/USDT">ETH/USDT</option>
+                        <option value="SOL/USDT">SOL/USDT</option>
+                        <option value="BNB/USDT">BNB/USDT</option>
+                        <option value="XRP/USDT">XRP/USDT</option>
+                        <option value="ADA/USDT">ADA/USDT</option>
+                        <option value="DOGE/USDT">DOGE/USDT</option>
+                        <option value="LTC/USDT">LTC/USDT</option>
+                        <option value="LINK/USDT">LINK/USDT</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="loadTradeNowAnalysis()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                        <i class="fa-solid fa-arrows-rotate"></i> ANALYZE NOW
+                    </button>
+                    <button onclick="executePaperTradeFromUI()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-file-signature"></i> RECORD SIMULATED PAPER TRADE
+                    </button>
+                    <button onclick="openSelectedInChart()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition border border-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-candlestick"></i> VIEW IN CHART
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Decision Banner -->
+            <div id="tradeNowDecisionBanner" class="p-6 rounded-2xl glass-panel border gradient-border-emerald">
+                <!-- Injected dynamically by JS -->
+            </div>
+
+            <!-- 2-Column Deep Diagnostics Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left 7 Cols: Actionable Plan + Multi-Timeframe Alignment -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- Actionable Plan Card -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 font-mono mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check"></i> Actionable Execution Plan (Risk-Calibrated)
+                        </h3>
+                        
+                        <div id="tradeNowPlanGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 text-xs font-mono">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Multi-Timeframe Matrix -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono mb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-layer-group text-purple-400"></i> Multi-Timeframe Consensus (15m → 1D)</span>
+                            <span id="htfAlignmentBadge" class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">ALIGNED</span>
+                        </h3>
+                        <div id="htfMatrixGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Deep Explanations (Why Trade vs Why Wait) -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- Why Trade Checklist -->
+                    <div class="glass-panel p-5 rounded-2xl border border-emerald-500/30 bg-emerald-950/10">
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i> Why Trade? Supporting Evidence
+                        </h3>
+                        <div id="whyTradeList" class="space-y-2 text-xs">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Why Not Trade / What is Missing Checklist -->
+                    <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-amber-950/10">
+                        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> What is Missing / What to Wait For
+                        </h3>
+                        <div id="whyWaitList" class="space-y-2 text-xs">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Invalidation & Next Review -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2 bg-slate-900/60">
+                        <div class="text-rose-400 font-semibold" id="invalidationBox">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="text-slate-400 pt-2 border-t border-slate-800" id="nextReviewBox">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: 🔎 MARKET SCANNER -->
+        <!-- ========================================== -->
+        <div id="tab-scanner" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Institutional Market Opportunity Scanner
+                        </h2>
+                        <p class="text-xs text-slate-400 font-mono">Live ranked multi-timeframe setup detector across all 9 assets.</p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 text-xs font-mono">
+                        <button onclick="filterScanner('ALL')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold active">ALL (9)</button>
+                        <button onclick="filterScanner('TRADE')" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 font-bold">TRADE ONLY</button>
+                        <button onclick="filterScanner('WATCH')" class="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 font-bold">WATCH ONLY</button>
+                        <button onclick="filterScanner('NO_TRADE')" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 font-bold">NO TRADE</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto mt-4">
+                    <table class="w-full text-left text-xs font-mono" id="scannerTable">
+                        <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3.5">Asset</th>
+                                <th class="p-3.5">Price</th>
+                                <th class="p-3.5">Regime</th>
+                                <th class="p-3.5">Trend (EMA)</th>
+                                <th class="p-3.5">RSI / Momentum</th>
+                                <th class="p-3.5">Volatility</th>
+                                <th class="p-3.5">Detected Setup</th>
+                                <th class="p-3.5">R:R</th>
+                                <th class="p-3.5">Score</th>
+                                <th class="p-3.5">Decision</th>
+                                <th class="p-3.5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800" id="scannerTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: 📈 CHARTS -->
+        <!-- ========================================== -->
+        <div id="tab-charts" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <select id="chartAssetSelect" onchange="updateLiveChart()" class="bg-slate-900 text-white font-mono font-bold text-sm px-4 py-2 rounded-xl border border-slate-700">
+                        <option value="BTC/USDT">BTC/USDT</option>
+                        <option value="ETH/USDT">ETH/USDT</option>
+                        <option value="SOL/USDT">SOL/USDT</option>
+                        <option value="BNB/USDT">BNB/USDT</option>
+                        <option value="XRP/USDT">XRP/USDT</option>
+                        <option value="ADA/USDT">ADA/USDT</option>
+                        <option value="DOGE/USDT">DOGE/USDT</option>
+                        <option value="LTC/USDT">LTC/USDT</option>
+                        <option value="LINK/USDT">LINK/USDT</option>
+                    </select>
+
+                    <div class="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-mono">
+                        <button onclick="changeChartTimeframe('5m')" class="tf-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white">5M</button>
+                        <button onclick="changeChartTimeframe('15m')" class="tf-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white">15M</button>
+                        <button onclick="changeChartTimeframe('1h')" class="tf-btn active px-3 py-1 rounded-lg bg-blue-600 text-white font-bold">1H</button>
+                        <button onclick="changeChartTimeframe('4h')" class="tf-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white">4H</button>
+                        <button onclick="changeChartTimeframe('1d')" class="tf-btn px-3 py-1 rounded-lg text-slate-400 hover:text-white">1D</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 text-xs font-mono text-slate-300">
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-cyan-400"></span> EMA 20</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-yellow-400"></span> EMA 50</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-purple-400"></span> EMA 200</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-rose-500"></span> Stop Loss</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-500"></span> Take Profit</span>
+                </div>
+            </div>
+
+            <!-- Chart Display Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-9 space-y-4">
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <div id="lightweightChartContainer" class="w-full h-[520px]"></div>
+                    </div>
+
+                    <!-- Sub-Panels -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                            <h4 class="text-xs font-bold text-slate-400 font-mono mb-2">RSI (14) Momentum Oscillator</h4>
+                            <div class="h-28 w-full"><canvas id="rsiChartCanvas"></canvas></div>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                            <h4 class="text-xs font-bold text-slate-400 font-mono mb-2">MACD (12, 26, 9) Histogram</h4>
+                            <div class="h-28 w-full"><canvas id="macdChartCanvas"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side Live Level Panel -->
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800" id="chartSideCockpit">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: 📊 ANALYTICS -->
+        <!-- ========================================== -->
+        <div id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 font-mono" id="analyticsKeyMetrics">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 glass-panel p-5 rounded-2xl border border-slate-800">
+                    <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated Decision Equity Trajectory</h3>
+                    <div class="h-72 w-full"><canvas id="analyticsEquityCanvas"></canvas></div>
+                </div>
+                <div class="lg:col-span-4 glass-panel p-5 rounded-2xl border border-slate-800">
+                    <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated P&L by Market Regime</h3>
+                    <div class="h-72 w-full"><canvas id="analyticsRegimeCanvas"></canvas></div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                <h3 class="text-xs font-bold uppercase text-slate-300 font-mono mb-4">Simulated Recommendations Journal</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Asset</th>
+                                <th class="p-3">Side</th>
+                                <th class="p-3">Entry</th>
+                                <th class="p-3">Exit</th>
+                                <th class="p-3">P&L ($)</th>
+                                <th class="p-3">R:R</th>
+                                <th class="p-3">Regime</th>
+                                <th class="p-3">Setup</th>
+                                <th class="p-3">Exit Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800" id="analyticsJournalTbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 6: 🧪 RESEARCH -->
+        <!-- ========================================== -->
+        <div id="tab-research" class="tab-content hidden space-y-6">
+            
+            <div class="glass-panel p-6 rounded-2xl border border-purple-500/30 bg-purple-950/10">
+                <div class="flex items-center justify-between pb-4 border-b border-purple-500/20">
+                    <div>
+                        <span class="text-xs font-mono font-bold px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">SCIENTIFIC PROSPECTIVE VALIDATION</span>
+                        <h2 class="text-xl font-bold text-white mt-2">Phase 17 Forward Baseline Test</h2>
+                    </div>
+                    <div class="text-right font-mono">
+                        <span class="text-xs text-slate-400">Target Sample Horizon</span>
+                        <div class="text-2xl font-bold text-purple-400">N ≥ 60 Days</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4 font-mono text-xs">
+                    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-slate-400 block">Candidate Model</span>
+                        <strong class="text-sm text-white">Trend EMA50 Equal-Weight (9 Coins)</strong>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-slate-400 block">Canonical Friction</span>
+                        <strong class="text-sm text-amber-400">30.0 bps per turnover</strong>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <span class="text-slate-400 block">Verification Mechanism</span>
+                        <strong class="text-sm text-emerald-400">SHA-256 Hash Chain (.git worktree)</strong>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-300 leading-relaxed font-mono">
+                    <strong>Protocol Invariant:</strong> The prospective tracker runs automatically via Windows Task Scheduler every day at 00:10 UTC (05:40 IST). No indicator, ML filter, regime filter, sizing rule, or parameter may be retroactively changed during the forward observation window.
+                </p>
+            </div>
+
+            <!-- Phase 21 Baseline Forensic Decomposition Summary -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono mb-3">
+                    <i class="fa-solid fa-microscope text-blue-400"></i> Phase 21: Baseline Edge Decomposition & Forensic Attribution
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono text-xs my-4">
+                    <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <span class="text-slate-400 block">Historical Win Rate</span>
+                        <strong class="text-base text-amber-400">33.9%</strong>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <span class="text-slate-400 block">Historical Payoff Ratio</span>
+                        <strong class="text-base text-emerald-400">15.23x (+83.6% vs -5.5%)</strong>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <span class="text-slate-400 block">Historical Profit Factor</span>
+                        <strong class="text-base text-white">7.82</strong>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <span class="text-slate-400 block">Profit Concentration</span>
+                        <strong class="text-base text-purple-400">Top 10% = 97.4% Gains</strong>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 font-mono">
+                    <strong>Economic Mechanism:</strong> Asymmetric right-tail macro trend harvester that cuts losses quickly at ~-5% and rides multi-month bull expansions.
+                </p>
+            </div>
+
+            <!-- Archived Vault -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-slate-500"></i> Archived Research Vault (Rejected Hypotheses)
+                </h3>
+                
+                <div class="space-y-3 font-mono text-xs">
+                    <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <strong class="text-slate-200">Phase 13: 1H High-Frequency ML Ensemble</strong>
+                            <p class="text-slate-500 text-[11px] mt-0.5">Net R: -0.229R. Friction drag (50 bps) destroyed edge across high turnover.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">REJECTED / ARCHIVED</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <strong class="text-slate-200">Phase 18-A/B/C: Alpha Experiments (Funding, RS Momentum, Vol Compression)</strong>
+                            <p class="text-slate-500 text-[11px] mt-0.5">Bootstrap CIs crossed zero; compression filter caused massive upside opportunity cost.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">REJECTED / ARCHIVED</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <strong class="text-slate-200">Phase 19: Causal Market Regime Classifier</strong>
+                            <p class="text-slate-500 text-[11px] mt-0.5">Breadth >= 60% cut DD to -41%, but failed Gate 2 delta-Sharpe (+0.05 vs +0.20 required).</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">REJECTED / ARCHIVED</span>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <strong class="text-slate-200">Phase 20: Risk Parity (1/ATR) & Sizing Overlays</strong>
+                            <p class="text-slate-500 text-[11px] mt-0.5">1/ATR penalized high-beta winners (SOL, DOGE), delta-Sharpe -0.189. Equal weight confirmed.</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">REJECTED / ARCHIVED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 7: ⚙️ SYSTEM -->
+        <!-- ========================================== -->
+        <div id="tab-system" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono" id="systemCardsContainer">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Client Logic -->
+    <script>
+        let currentTab = 'dashboard';
+        let currentChartSymbol = 'BTC/USDT';
+        let currentChartTimeframe = '1h';
+        let lwChart = null;
+        let candleSeries = null;
+        let ema20Series = null;
+        let ema50Series = null;
+        let ema200Series = null;
+        let slPriceLine = null;
+        let tpPriceLine = null;
+        let rsiChart = null;
+        let macdChart = null;
+        let cachedScanner = [];
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            const target = document.getElementById('tab-' + tabId);
+            const btn = document.getElementById('btn-tab-' + tabId);
+            if (target) target.classList.remove('hidden');
+            if (btn) btn.classList.add('active');
+            currentTab = tabId;
+
+            if (tabId === 'charts') {
+                setTimeout(initOrResizeChart, 100);
+            } else if (tabId === 'tradenow') {
+                loadTradeNowAnalysis();
+            } else if (tabId === 'analytics') {
+                initAnalytics();
+            } else if (tabId === 'system') {
+                loadSystemHealth();
+            }
+        }
+
+        async function loadDashboard() {
+            const res = await fetch('/api/scanner');
+            const data = await res.json();
+            cachedScanner = data;
+
+            // 1. Tickers Grid
+            const tickerGrid = document.getElementById('dashTickerGrid');
+            tickerGrid.innerHTML = data.slice(0, 5).map(s => `
+                <div onclick="selectAssetAndOpenTradeNow('${s.symbol}')" class="glass-panel p-3.5 rounded-xl cursor-pointer hover:border-blue-500/50 transition">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="font-bold text-xs text-white">${s.symbol}</span>
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded" style="background: ${s.regime.color}20; color: ${s.regime.color}; border: 1px solid ${s.regime.color}40;">
+                            ${s.regime.regime}
+                        </span>
+                    </div>
+                    <div class="text-base font-bold font-mono text-slate-100">$${s.current_price.toLocaleString()}</div>
+                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-800 text-[11px] font-mono">
+                        <span class="text-slate-400">Score: <strong class="text-white">${s.setup_quality_score}</strong></span>
+                        <span class="font-bold" style="color: ${s.decision_color}">${s.decision_badge} ${s.decision}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // 2. Top Spotlight Setup
+            const top = data[0] || data[1] || data[2];
+            if (top) {
+                const topCard = document.getElementById('dashTopSetupCard');
+                topCard.innerHTML = `
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                        <div>
+                            <div class="text-xs font-semibold text-blue-400 uppercase tracking-wider font-mono">Top Institutional Opportunity</div>
+                            <h2 class="text-2xl font-black text-white mt-0.5 flex items-center gap-3">
+                                ${top.symbol}
+                                <span class="text-xs px-2.5 py-1 rounded-full font-bold font-mono" style="background: ${top.decision_color}20; color: ${top.decision_color}; border: 1px solid ${top.decision_color}40;">
+                                    ${top.decision_badge} ${top.decision_label}
+                                </span>
+                            </h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-400 font-mono">Setup Quality Score</div>
+                            <div class="text-3xl font-black font-mono text-emerald-400">${top.setup_quality_score}<span class="text-sm text-slate-500">/100</span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-5 p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono">
+                        <div><span class="text-slate-400 block">Direction</span><strong class="text-base text-white">${top.trade_plan.direction}</strong></div>
+                        <div><span class="text-slate-400 block">Entry Zone</span><strong class="text-base text-slate-200">${top.trade_plan.entry_zone}</strong></div>
+                        <div><span class="text-slate-400 block">Stop Loss (Structure)</span><strong class="text-base text-rose-400">$${top.trade_plan.stop_loss.toLocaleString()}</strong></div>
+                        <div><span class="text-slate-400 block">Take Profit 1 (2R)</span><strong class="text-base text-emerald-400">$${top.trade_plan.take_profit_1.toLocaleString()}</strong></div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-xs font-semibold text-slate-300">Why Trade? Key Supporting Evidence:</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                            ${top.explanations.why_trade.slice(0, 4).map(r => `
+                                <div class="flex items-center space-x-2 text-slate-300 bg-slate-800/40 px-3 py-2 rounded-lg border border-slate-800">
+                                    <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
+                                    <span>${r}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button onclick="selectAssetAndOpenTradeNow('${top.symbol}')" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-crosshairs"></i> Open in Trade Now Cockpit
+                        </button>
+                        <button onclick="selectAssetAndOpenChart('${top.symbol}')" class="px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition border border-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-candlestick"></i> Inspect Live Chart
+                        </button>
+                    </div>
+                `;
+            }
+
+            // 3. Quick Scanner Table
+            const dashTbody = document.getElementById('dashScannerTbody');
+            dashTbody.innerHTML = data.map(s => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 font-bold text-white">${s.symbol}</td>
+                    <td class="p-3 text-slate-200">$${s.current_price.toLocaleString()}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px]" style="background: ${s.regime.color}20; color: ${s.regime.color};">${s.regime.regime}</span></td>
+                    <td class="p-3 text-slate-300">${s.setup.setup_type}</td>
+                    <td class="p-3 text-slate-300 font-bold">${s.trade_plan.risk_reward_ratio.toFixed(1)}</td>
+                    <td class="p-3 font-bold text-emerald-400">${s.setup_quality_score}</td>
+                    <td class="p-3"><span class="font-bold" style="color: ${s.decision_color}">${s.decision_badge} ${s.decision}</span></td>
+                    <td class="p-3 text-right">
+                        <button onclick="selectAssetAndOpenTradeNow('${s.symbol}')" class="px-2.5 py-1 rounded bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white transition">Analyze</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 4. Scanner Tab Table
+            const scanTbody = document.getElementById('scannerTableBody');
+            scanTbody.innerHTML = data.map(s => `
+                <tr class="hover:bg-slate-800/40 transition scanner-row" data-decision="${s.decision}">
+                    <td class="p-3.5 font-bold text-white text-sm">${s.symbol}</td>
+                    <td class="p-3.5 text-slate-200 font-bold">$${s.current_price.toLocaleString()}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background: ${s.regime.color}20; color: ${s.regime.color}; border: 1px solid ${s.regime.color}40;">
+                            ${s.regime.regime}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-slate-300">EMA20: $${s.indicators.ema_20.toLocaleString()}</td>
+                    <td class="p-3.5 text-slate-300">RSI ${s.indicators.rsi_14}</td>
+                    <td class="p-3.5 text-slate-400">ATR ${s.indicators.atr_pct}%</td>
+                    <td class="p-3.5 font-medium text-slate-200">${s.setup.setup_type}</td>
+                    <td class="p-3.5 font-bold text-blue-400">1 : ${s.trade_plan.risk_reward_ratio.toFixed(1)}</td>
+                    <td class="p-3.5 font-black text-sm text-emerald-400">${s.setup_quality_score}</td>
+                    <td class="p-3.5">
+                        <span class="font-bold px-2 py-1 rounded text-xs" style="background: ${s.decision_color}15; color: ${s.decision_color}; border: 1px solid ${s.decision_color}30;">
+                            ${s.decision_badge} ${s.decision}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-right space-x-2">
+                        <button onclick="selectAssetAndOpenTradeNow('${s.symbol}')" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition">Trade Now</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 5. Portfolio Card
+            const aRes = await fetch('/api/analytics');
+            const aData = await aRes.json();
+            const pCard = document.getElementById('dashPortfolioCard');
+            pCard.innerHTML = `
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">Portfolio & Risk Overview</h3>
+                <div class="space-y-3 font-mono text-xs">
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
+                        <span class="text-slate-400">Account Equity</span>
+                        <span class="text-base font-bold text-white">$${aData.current_equity.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
+                        <span class="text-slate-400">Simulated Net P&L</span>
+                        <span class="font-bold text-emerald-400">+$${aData.total_pnl_usd.toLocaleString()} (${aData.total_pnl_pct >= 0 ? '+' : ''}${aData.total_pnl_pct}%)</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-slate-800">
+                        <span class="text-slate-400">Win Rate / Profit Factor</span>
+                        <span class="font-bold text-slate-200">${aData.win_rate_pct}% / ${aData.profit_factor} PF</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5">
+                        <span class="text-slate-400">Risk Allocation</span>
+                        <span class="font-bold text-blue-400">1.0% per Trade ($100)</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAssetAndOpenTradeNow(symbol) {
+            document.getElementById('tradeNowAssetSelect').value = symbol;
+            switchTab('tradenow');
+        }
+
+        function selectAssetAndOpenChart(symbol) {
+            document.getElementById('chartAssetSelect').value = symbol;
+            currentChartSymbol = symbol;
+            switchTab('charts');
+        }
+
+        async function loadTradeNowAnalysis() {
+            const sym = document.getElementById('tradeNowAssetSelect').value;
+            const res = await fetch(`/api/decision/${encodeURIComponent(sym)}`);
+            const data = await res.json();
+            
+            const banner = document.getElementById('tradeNowDecisionBanner');
+            const plan = data.trade_plan;
+            const exp = data.explanations;
+            const htf = data.multi_timeframe;
+
+            banner.style.borderColor = data.decision_color + '40';
+            banner.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-mono font-bold text-slate-400">ANALYSIS HORIZON: 1H / 4H MULTI-TIMEFRAME</div>
+                        <h2 class="text-3xl font-black text-white mt-1 flex items-center gap-3">
+                            ${data.symbol}
+                            <span class="text-sm px-3 py-1 rounded-full font-bold font-mono" style="background: ${data.decision_color}20; color: ${data.decision_color}; border: 1px solid ${data.decision_color}50;">
+                                ${data.decision_badge} ${data.decision_label}
+                            </span>
+                        </h2>
+                    </div>
+                    <div class="flex items-center space-x-6 text-right font-mono">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Market Regime</span>
+                            <span class="text-sm font-bold" style="color: ${data.regime.color}">${data.regime.regime}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block">Setup Quality</span>
+                            <span class="text-2xl font-black text-emerald-400">${data.setup_quality_score}<span class="text-xs text-slate-500">/100</span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const planGrid = document.getElementById('tradeNowPlanGrid');
+            planGrid.innerHTML = `
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Direction</span><strong class="text-sm text-white">${plan.direction}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Entry Zone</span><strong class="text-sm text-slate-200">${plan.entry_zone}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Stop Loss</span><strong class="text-sm text-rose-400">$${plan.stop_loss.toLocaleString()}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Take Profit 1 (2R)</span><strong class="text-sm text-emerald-400">$${plan.take_profit_1.toLocaleString()}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Take Profit 2 (3.5R)</span><strong class="text-sm text-emerald-400">$${plan.take_profit_2.toLocaleString()}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Risk/Reward</span><strong class="text-sm text-blue-400">1 : ${plan.risk_reward_ratio.toFixed(2)}</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Risk Size</span><strong class="text-sm text-slate-200">${plan.risk_pct}% ($${plan.risk_amount_usd})</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Position Units</span><strong class="text-sm text-purple-400">${plan.position_size_units} ($${plan.position_value_usd.toLocaleString()} USD)</strong></div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800"><span class="text-slate-400 block">Horizon</span><strong class="text-sm text-slate-300">${plan.expected_holding}</strong></div>
+            `;
+
+            const htfGrid = document.getElementById('htfMatrixGrid');
+            htfGrid.innerHTML = Object.entries(htf.timeframes).map(([tf, info]) => `
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+                    <span class="text-slate-400 uppercase text-[10px] block">${tf}</span>
+                    <div class="font-bold my-1 text-xs" style="color: ${info.trend === 'BULLISH' ? '#34d399' : (info.trend === 'BEARISH' ? '#f87171' : '#9ca3af')}">
+                        ${info.badge} ${info.trend}
+                    </div>
+                    <span class="text-[10px] text-slate-500">RSI ${info.rsi}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('whyTradeList').innerHTML = exp.why_trade.map(r => `
+                <div class="flex items-center space-x-2 text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                    <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
+                    <span>${r}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('whyWaitList').innerHTML = exp.why_wait.map(r => `
+                <div class="flex items-center space-x-2 text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                    <i class="fa-solid fa-hourglass-half text-amber-400 text-xs"></i>
+                    <span>${r}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('invalidationBox').innerHTML = `
+                <i class="fa-solid fa-ban text-rose-400 mr-1"></i>
+                <strong>Invalidation:</strong> ${exp.invalidation_text}
+            `;
+            document.getElementById('nextReviewBox').innerHTML = `
+                <i class="fa-regular fa-clock text-slate-400 mr-1"></i>
+                <strong>Next Review:</strong> ${exp.next_review}
+            `;
+        }
+
+        async function executePaperTradeFromUI() {
+            const sym = document.getElementById('tradeNowAssetSelect').value;
+            const res = await fetch(`/api/decision/${encodeURIComponent(sym)}`);
+            const data = await res.json();
+            const plan = data.trade_plan;
+
+            const postRes = await fetch('/api/record-paper-trade', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    symbol: sym,
+                    direction: plan.direction,
+                    entry_price: plan.current_price,
+                    stop_loss: plan.stop_loss,
+                    take_profit_1: plan.take_profit_1,
+                    rr: plan.risk_reward_ratio,
+                    regime: data.regime.regime,
+                    setup: data.setup.setup_type,
+                    pnl_usd: 0.0,
+                    status: 'OPEN'
+                })
+            });
+            const result = await postRes.json();
+            alert(`Simulated Paper Trade Recorded: ${result.id} for ${sym}! View in Tab 5 Analytics.`);
+        }
+
+        function filterScanner(type) {
+            const rows = document.querySelectorAll('.scanner-row');
+            rows.forEach(r => {
+                const dec = r.getAttribute('data-decision');
+                if (type === 'ALL') r.style.display = '';
+                else if (type === 'TRADE' && dec === 'TRADE') r.style.display = '';
+                else if (type === 'WATCH' && dec === 'WATCH') r.style.display = '';
+                else if (type === 'NO_TRADE' && dec === 'NO TRADE') r.style.display = '';
+                else r.style.display = 'none';
+            });
+        }
+
+        async function initOrResizeChart() {
+            const container = document.getElementById('lightweightChartContainer');
+            if (!container) return;
+
+            if (!lwChart) {
+                lwChart = LightweightCharts.createChart(container, {
+                    layout: {
+                        background: { color: '#090d16' },
+                        textColor: '#94a3b8',
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: 11
+                    },
+                    grid: {
+                        vertLines: { color: 'rgba(255, 255, 255, 0.04)' },
+                        horzLines: { color: 'rgba(255, 255, 255, 0.04)' }
+                    },
+                    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+                    rightPriceScale: { borderColor: '#1e293b' },
+                    timeScale: { borderColor: '#1e293b', timeVisible: true, secondsVisible: false }
+                });
+
+                candleSeries = lwChart.addCandlestickSeries({
+                    upColor: '#10b981',
+                    downColor: '#ef4444',
+                    borderVisible: false,
+                    wickUpColor: '#10b981',
+                    wickDownColor: '#ef4444'
+                });
+
+                ema20Series = lwChart.addLineSeries({ color: '#22d3ee', lineWidth: 1.5, title: 'EMA 20' });
+                ema50Series = lwChart.addLineSeries({ color: '#facc15', lineWidth: 1.5, title: 'EMA 50' });
+                ema200Series = lwChart.addLineSeries({ color: '#c084fc', lineWidth: 1.5, title: 'EMA 200' });
+
+                window.addEventListener('resize', () => {
+                    if (lwChart && container) {
+                        lwChart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+                    }
+                });
+            }
+
+            await updateLiveChart();
+        }
+
+        async function updateLiveChart() {
+            const sym = document.getElementById('chartAssetSelect').value;
+            currentChartSymbol = sym;
+            const res = await fetch(`/api/chart/${encodeURIComponent(sym)}?timeframe=${currentChartTimeframe}`);
+            const data = await res.json();
+
+            if (candleSeries && data.candles) {
+                candleSeries.setData(data.candles);
+                if (data.indicators.ema20) ema20Series.setData(data.indicators.ema20);
+                if (data.indicators.ema50) ema50Series.setData(data.indicators.ema50);
+                if (data.indicators.ema200) ema200Series.setData(data.indicators.ema200);
+                lwChart.timeScale().fitContent();
+            }
+
+            const dec = data.decision;
+            const side = document.getElementById('chartSideCockpit');
+            side.innerHTML = `
+                <div class="text-xs font-mono text-slate-400 uppercase font-bold">Chart Intelligence</div>
+                <h3 class="text-xl font-bold text-white mt-1">${sym}</h3>
+                <div class="my-3 p-2.5 rounded-lg text-xs font-bold" style="background: ${dec.decision_color}20; color: ${dec.decision_color};">
+                    ${dec.decision_badge} ${dec.decision_label}
+                </div>
+                <div class="space-y-2 text-xs font-mono text-slate-300">
+                    <div class="flex justify-between"><span>Regime:</span> <strong class="text-white">${dec.regime.regime}</strong></div>
+                    <div class="flex justify-between"><span>Score:</span> <strong class="text-emerald-400">${dec.setup_quality_score}/100</strong></div>
+                    <div class="flex justify-between"><span>R:R:</span> <strong class="text-blue-400">1 : ${dec.trade_plan.risk_reward_ratio.toFixed(2)}</strong></div>
+                    <div class="flex justify-between"><span>Stop Loss:</span> <strong class="text-rose-400">$${dec.trade_plan.stop_loss.toLocaleString()}</strong></div>
+                    <div class="flex justify-between"><span>Target 1:</span> <strong class="text-emerald-400">$${dec.trade_plan.take_profit_1.toLocaleString()}</strong></div>
+                </div>
+            `;
+
+            renderSubCharts(data);
+        }
+
+        function renderSubCharts(data) {
+            const rsiCtx = document.getElementById('rsiChartCanvas').getContext('2d');
+            const rsiData = data.indicators.rsi || [];
+            if (rsiChart) rsiChart.destroy();
+            rsiChart = new Chart(rsiCtx, {
+                type: 'line',
+                data: {
+                    labels: rsiData.slice(-40).map(d => ''),
+                    datasets: [{
+                        label: 'RSI',
+                        data: rsiData.slice(-40).map(d => d.value),
+                        borderColor: '#818cf8',
+                        borderWidth: 1.5,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        x: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const macdCtx = document.getElementById('macdChartCanvas').getContext('2d');
+            const macdData = data.indicators.macd || [];
+            if (macdChart) macdChart.destroy();
+            macdChart = new Chart(macdCtx, {
+                type: 'bar',
+                data: {
+                    labels: macdData.slice(-40).map(d => ''),
+                    datasets: [{
+                        label: 'MACD Hist',
+                        data: macdData.slice(-40).map(d => d.hist),
+                        backgroundColor: macdData.slice(-40).map(d => d.hist >= 0 ? '#10b981' : '#ef4444')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        x: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function changeChartTimeframe(tf) {
+            currentChartTimeframe = tf;
+            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white', 'font-bold'));
+            event.target.classList.add('active', 'bg-blue-600', 'text-white', 'font-bold');
+            updateLiveChart();
+        }
+
+        function openSelectedInChart() {
+            const sym = document.getElementById('tradeNowAssetSelect').value;
+            selectAssetAndOpenChart(sym);
+        }
+
+        let eqChart = null;
+        let regChart = null;
+        async function initAnalytics() {
+            const res = await fetch('/api/analytics');
+            const data = await res.json();
+
+            // Key metrics
+            const km = document.getElementById('analyticsKeyMetrics');
+            km.innerHTML = `
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Simulated Win Rate</span><span class="text-xl font-bold text-emerald-400">${data.win_rate_pct}%</span><span class="text-[10px] text-slate-500 block">${data.wins}W / ${data.losses}L</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Profit Factor</span><span class="text-xl font-bold text-white">${data.profit_factor}</span><span class="text-[10px] text-slate-500 block">Gross Gain / Loss</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Payoff Ratio</span><span class="text-xl font-bold text-blue-400">${data.payoff_ratio}x</span><span class="text-[10px] text-slate-500 block">Avg Win / Avg Loss</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Total Realized P&L</span><span class="text-xl font-bold text-emerald-400">+$${data.total_pnl_usd.toLocaleString()}</span><span class="text-[10px] text-slate-500 block">${data.total_pnl_pct >= 0 ? '+' : ''}${data.total_pnl_pct}% on Equity</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Max Drawdown</span><span class="text-xl font-bold text-rose-400">-${data.max_drawdown_pct}%</span><span class="text-[10px] text-slate-500 block">Simulated Peak-to-Trough</span></div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800"><span class="text-[10px] text-slate-400 block uppercase">Simulated Trades</span><span class="text-xl font-bold text-purple-400">${data.total_trades}</span><span class="text-[10px] text-slate-500 block">Paper Decision Log</span></div>
+            `;
+
+            // Equity canvas
+            const eqCtx = document.getElementById('analyticsEquityCanvas').getContext('2d');
+            if (eqChart) eqChart.destroy();
+            eqChart = new Chart(eqCtx, {
+                type: 'line',
+                data: {
+                    labels: data.equity_curve.map((_, i) => '#' + i),
+                    datasets: [{
+                        label: 'Simulated Equity ($)',
+                        data: data.equity_curve.map(d => d.equity),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono' } } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Regime Canvas
+            const regCtx = document.getElementById('analyticsRegimeCanvas').getContext('2d');
+            if (regChart) regChart.destroy();
+            const regLabels = Object.keys(data.by_regime);
+            const regPnl = regLabels.map(k => data.by_regime[k].pnl);
+
+            regChart = new Chart(regCtx, {
+                type: 'bar',
+                data: {
+                    labels: regLabels,
+                    datasets: [{
+                        label: 'P&L ($)',
+                        data: regPnl,
+                        backgroundColor: regPnl.map(v => v >= 0 ? '#10b981' : '#ef4444')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { ticks: { color: '#94a3b8', font: { size: 9 } } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Journal table
+            const jTbody = document.getElementById('analyticsJournalTbody');
+            jTbody.innerHTML = data.recent_trades.map(t => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-3 text-slate-400">${t.id || 'SIM'}</td>
+                    <td class="p-3 font-bold text-white">${t.symbol}</td>
+                    <td class="p-3 text-blue-400">${t.direction || 'LONG'}</td>
+                    <td class="p-3">$${(t.entry_price || 0).toLocaleString()}</td>
+                    <td class="p-3">$${(t.exit_price || 0).toLocaleString()}</td>
+                    <td class="p-3 font-bold ${(t.pnl_usd || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}">$${(t.pnl_usd || 0) >= 0 ? '+' : ''}${(t.pnl_usd || 0).toLocaleString()}</td>
+                    <td class="p-3">${(t.rr || 0).toFixed(1)}R</td>
+                    <td class="p-3">${t.regime || 'BULL'}</td>
+                    <td class="p-3 text-slate-300">${t.setup || 'BREAKOUT'}</td>
+                    <td class="p-3 text-slate-400">${t.exit_reason || 'OPEN'}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadSystemHealth() {
+            const res = await fetch('/api/system');
+            const data = await res.json();
+            const container = document.getElementById('systemCardsContainer');
+            container.innerHTML = `
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold text-slate-300">DATABASE HEALTH</span>
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">ONLINE</span>
+                    </div>
+                    <div class="text-xs space-y-2 text-slate-400">
+                        <div>Type: <strong class="text-white">${data.database.type}</strong></div>
+                        <div>Total Stored Candles: <strong class="text-white">${data.database.total_candles.toLocaleString()}</strong></div>
+                        <div>Active Symbols: <strong class="text-white">${data.database.symbols_active} pairs</strong></div>
+                        <div>Latest Candle UTC: <strong class="text-slate-200">${data.database.latest_candle_utc}</strong></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold text-slate-300">SERVICES TELEMETRY</span>
+                        <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold">ACTIVE</span>
+                    </div>
+                    <div class="text-xs space-y-2 text-slate-400">
+                        <div>Web Cockpit: <strong class="text-white">${data.api_services.web_cockpit}</strong></div>
+                        <div>Market REST API: <strong class="text-white">${data.api_services.market_api}</strong></div>
+                        <div>Internal Latency: <strong class="text-emerald-400">${data.api_services.latency_ms} ms</strong></div>
+                        <div>WebSocket Feed: <strong class="text-emerald-400">Binance 1H Active</strong></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-rose-500/20 bg-rose-950/10">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold text-rose-400">SAFETY FIREWALLS</span>
+                        <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">LOCKED</span>
+                    </div>
+                    <div class="text-xs space-y-2 text-slate-300">
+                        <div>Real Money Execution: <strong class="text-rose-400">STRICTLY OFF</strong></div>
+                        <div>Paper Decision Mode: <strong class="text-emerald-400">ENABLED</strong></div>
+                        <div>Phase 17 Validation: <strong class="text-purple-400">FROZEN</strong></div>
+                        <div>Zero Capital Risk: <strong class="text-emerald-400">ENFORCED</strong></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>
