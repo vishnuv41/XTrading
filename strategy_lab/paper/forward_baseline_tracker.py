@@ -9,15 +9,19 @@ Tracks 3 parallel arms with independent $10,000 USD virtual accounts:
 
 Features:
 - Cryptographic SHA-256 Hash-Chained Ledger: Every row is linked to the previous row's hash.
+- Pinned Genesis Spec: Records exact code commit hash and strategy parameter SHA-256 in the genesis row.
+- Worktree Isolation: Commits and pushes exclusively within strategy_lab/paper/.worktree_ledger/
+  without ever modifying or touching the developer's active working tree branch.
 - Idempotent Catch-Up: Processes all missed closed calendar days chronologically.
-- Complete Segregation: No dependencies on Phase 13 single-position engine or database state.
 """
 
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 import numpy as np
 import pandas as pd
@@ -31,9 +35,27 @@ from strategy_lab.lowturn.strategies import generate_single_ema_weights
 STATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state")
 STATE_FILE = os.path.join(STATE_DIR, "forward_track_state.json")
 LEDGER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "forward_track_ledger.jsonl")
+WORKTREE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".worktree_ledger")
 
 # Official Start Timestamp (first closed bar post-freeze)
 OFFICIAL_START_TS = "2026-10-06T00:00:00+00:00"
+FROZEN_CODE_COMMIT = "031037b721a7b1f02aca677f93541a8a3fc7541e"
+
+FROZEN_STRATEGY_PARAMETERS = {
+    "protocol": "Phase 17 Trend_EMA_50 Forward Benchmark",
+    "universe": UNIVERSE_SYMBOLS,
+    "timeframe": "1d",
+    "ema_span": 50,
+    "round_trip_bps": CANONICAL_ROUND_TRIP_BPS,
+    "arm_c_rebalance_rule": "monthly_1st",
+    "arm_c_target_crypto_exposure": 0.45,
+    "execution_convention": "t+1_open",
+}
+
+
+def get_parameters_sha256() -> str:
+    canonical_str = json.dumps(FROZEN_STRATEGY_PARAMETERS, sort_keys=True)
+    return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
 
 
 def initialize_or_load_state() -> Dict[str, Any]:
@@ -45,6 +67,8 @@ def initialize_or_load_state() -> Dict[str, Any]:
     n_syms = len(UNIVERSE_SYMBOLS)
     return {
         "official_start_date": OFFICIAL_START_TS,
+        "frozen_commit": FROZEN_CODE_COMMIT,
+        "parameters_sha256": get_parameters_sha256(),
         "last_updated": None,
         "round_trip_bps": CANONICAL_ROUND_TRIP_BPS,
         "symbols": UNIVERSE_SYMBOLS,
@@ -87,7 +111,6 @@ def save_state(state: Dict[str, Any]):
 
 
 def get_last_ledger_hash() -> str:
-    """Read the last line from the ledger file and return its entry_hash, or 64 zeros if empty/missing."""
     if not os.path.exists(LEDGER_FILE) or os.path.getsize(LEDGER_FILE) == 0:
         return "0" * 64
 
@@ -110,7 +133,15 @@ def get_last_ledger_hash() -> str:
 def append_to_hash_chained_ledger(record: Dict[str, Any]):
     prev_hash = get_last_ledger_hash()
     record["prev_hash"] = prev_hash
-    
+
+    # If genesis block, pin the frozen spec metadata
+    if prev_hash == "0" * 64:
+        record["genesis_spec"] = {
+            "frozen_code_commit": FROZEN_CODE_COMMIT,
+            "parameters_sha256": get_parameters_sha256(),
+            "strategy_parameters": FROZEN_STRATEGY_PARAMETERS,
+        }
+
     # Compute canonical hash of the record payload
     payload_str = json.dumps(record, sort_keys=True, default=str)
     entry_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
@@ -146,9 +177,41 @@ def compute_target_weights_for_bar(
     }
 
 
+def push_ledger_via_isolated_worktree(last_ts_str: str):
+    """
+    Safely commits and pushes forward_track_ledger.jsonl from the isolated worktree
+    without touching the developer's active working tree branch.
+    """
+    if not os.path.exists(WORKTREE_DIR):
+        return
+
+    try:
+        dest_ledger = os.path.join(WORKTREE_DIR, "strategy_lab", "paper", "forward_track_ledger.jsonl")
+        os.makedirs(os.path.dirname(dest_ledger), exist_ok=True)
+        shutil.copy2(LEDGER_FILE, dest_ledger)
+
+        # Commit and push within the dedicated worktree directory
+        subprocess.run(["git", "add", "strategy_lab/paper/forward_track_ledger.jsonl"], cwd=WORKTREE_DIR, check=False)
+        commit_res = subprocess.run(
+            ["git", "commit", "-m", f"chore(tracker): forward ledger update {last_ts_str}"],
+            cwd=WORKTREE_DIR,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if "nothing to commit" not in commit_res.stdout.lower() and commit_res.returncode == 0:
+            push_res = subprocess.run(["git", "push", "origin", "forward-ledger"], cwd=WORKTREE_DIR, capture_output=True, text=True, check=False)
+            if push_res.returncode == 0:
+                print("Forward track ledger safely committed & pushed via isolated worktree to origin/forward-ledger.")
+            else:
+                print(f"Note: worktree push to origin/forward-ledger deferred: {push_res.stderr.strip()}")
+    except Exception as exc:
+        print(f"Note: isolated worktree sync encountered: {exc}")
+
+
 def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
     """
-    Executes daily tracker with catch-up and cryptographic hash-chaining.
+    Executes daily tracker with catch-up, hash-chaining, and isolated worktree pushing.
     """
     state = initialize_or_load_state()
     panel = load_panel_universe(timeframe=timeframe)
@@ -236,27 +299,7 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
 
     save_state(state)
     print(f"Forward tracker updated to: {state['last_updated']}.")
-
-    # Automated git commit & push of forward_track_ledger.jsonl to dedicated remote branch
-    try:
-        import subprocess
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        subprocess.run(["git", "add", "strategy_lab/paper/forward_track_ledger.jsonl"], cwd=project_root, check=False)
-        commit_res = subprocess.run(
-            ["git", "commit", "-m", f"chore(tracker): forward ledger update {state['last_updated']}"],
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if "nothing to commit" not in commit_res.stdout.lower() and commit_res.returncode == 0:
-            push_res = subprocess.run(["git", "push", "origin", "HEAD:forward-ledger"], cwd=project_root, capture_output=True, text=True, check=False)
-            if push_res.returncode == 0:
-                print("Forward track ledger committed and pushed to origin/forward-ledger.")
-            else:
-                print(f"Note: push to origin/forward-ledger deferred: {push_res.stderr.strip()}")
-    except Exception as e:
-        print(f"Note: automated remote ledger push skipped or offline: {e}")
+    push_ledger_via_isolated_worktree(state["last_updated"])
 
     return state
 

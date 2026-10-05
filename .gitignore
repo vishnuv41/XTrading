@@ -63,6 +63,7 @@ htmlcov/
 *.tmp
 *.bak
 
-# Paper Trading Ephemeral State
+# Paper Trading Ephemeral State & Worktrees
 strategy_lab/paper/state/
+strategy_lab/paper/.worktree_ledger/
 file
