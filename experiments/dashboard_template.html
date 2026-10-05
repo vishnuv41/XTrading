@@ -94,46 +94,24 @@
             transform: translateY(-1px);
         }
 
-        /* Slidebar styling */
+        /* Slidebar styling (MedTouch Glass Aesthetic) */
         #appSidebar {
             width: var(--sidebar-width);
             background: var(--sidebar-bg);
             border-right: 1px solid var(--sidebar-border);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html.light #appSidebar {
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
         }
 
         #mainContentWrapper {
             margin-left: var(--sidebar-width);
-            transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* Collapsed Sidebar */
-        #appSidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-        }
-
-        #mainContentWrapper.sidebar-collapsed {
-            margin-left: var(--sidebar-collapsed-width);
-        }
-
-        #appSidebar.collapsed .hide-collapsed {
-            display: none !important;
-        }
-
-        #appSidebar.collapsed .sidebar-item-btn {
-            justify-content: center;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-
-        #appSidebar.collapsed .sidebar-item-btn:hover {
-            transform: none;
-        }
-
-        #appSidebar.collapsed .sidebar-icon-box {
-            margin: 0 auto;
+            min-height: 100vh;
         }
 
         @media (max-width: 1024px) {
@@ -142,9 +120,9 @@
             }
             #appSidebar.mobile-open {
                 transform: translateX(0) !important;
-                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
             }
-            #mainContentWrapper, #mainContentWrapper.sidebar-collapsed {
+            #mainContentWrapper {
                 margin-left: 0 !important;
             }
         }
@@ -153,14 +131,14 @@
         .sidebar-item-btn {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.65rem 0.85rem;
-            border-radius: 0.875rem;
+            gap: 0.85rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
             font-size: 0.8125rem;
             font-weight: 600;
             color: var(--text-secondary);
             border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             cursor: pointer;
             width: 100%;
@@ -170,29 +148,29 @@
         .sidebar-item-btn:hover {
             color: var(--text-primary);
             background: rgba(56, 189, 248, 0.08);
-            border-color: rgba(56, 189, 248, 0.2);
-            transform: translateX(2px);
+            border-color: rgba(56, 189, 248, 0.25);
+            transform: translateX(3px);
         }
 
         html.light .sidebar-item-btn:hover {
             color: #0369a1;
-            background: rgba(224, 242, 254, 0.7);
-            border-color: rgba(125, 211, 252, 0.6);
+            background: rgba(224, 242, 254, 0.8);
+            border-color: rgba(125, 211, 252, 0.7);
         }
 
         .sidebar-item-btn.active {
             color: #38bdf8;
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.16));
-            border: 1px solid rgba(56, 189, 248, 0.45);
-            box-shadow: 0 4px 20px -4px rgba(56, 189, 248, 0.2);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(99, 102, 241, 0.18));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 4px 20px -4px rgba(56, 189, 248, 0.25);
         }
 
         .sidebar-item-btn.active::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 20%;
-            bottom: 20%;
+            top: 22%;
+            bottom: 22%;
             width: 3.5px;
             border-radius: 0 4px 4px 0;
             background: #38bdf8;
@@ -282,36 +260,33 @@
     <div id="sidebarBackdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
 
     <!-- ========================================== -->
-    <!-- 🧭 SLIDEBAR (SIDEBAR NAVIGATION) -->
+    <!-- 🧭 INSTITUTIONAL SLIDEBAR (MEDTOUCH GLASS) -->
     <!-- ========================================== -->
-    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-50 flex flex-col justify-between">
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-50 flex flex-col justify-between py-5 px-3.5">
         
-        <!-- Sidebar Top: Brand & Slide Toggle -->
-        <div>
-            <div class="h-16 px-4 flex items-center justify-between border-b border-slate-700/40">
-                <div class="flex items-center space-x-3 overflow-hidden">
-                    <div class="relative flex-shrink-0">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600">
-                            <i class="fa-solid fa-chart-line text-sm text-white"></i>
-                        </div>
-                    </div>
-                    <div class="hide-collapsed whitespace-nowrap overflow-hidden">
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-extrabold text-sm tracking-tight">XTRADING</span>
-                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">AI</span>
-                        </div>
-                        <div class="text-[10px] text-slate-400 font-medium">Decision Cockpit</div>
+        <!-- Sidebar Top: Brand Box & Section Header -->
+        <div class="space-y-5">
+            
+            <!-- Brand Identity Box -->
+            <div class="p-3.5 rounded-2xl border border-slate-700/50 flex items-center space-x-3.5" style="background: var(--inner-box)">
+                <div class="relative flex-shrink-0">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600">
+                        <i class="fa-solid fa-chart-line text-base text-white"></i>
                     </div>
                 </div>
-                <button onclick="toggleSidebarCollapse()" title="Toggle Sidebar" class="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-slate-800/50 transition">
-                    <i id="sidebarCollapseIcon" class="fa-solid fa-angles-left text-xs"></i>
-                </button>
+                <div class="overflow-hidden">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-black text-sm tracking-tight text-white dark:text-white">XTRADING</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-400 border border-sky-500/30">AI</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 font-medium truncate">Decision Cockpit</div>
+                </div>
             </div>
 
             <!-- Slidebar 7 Modules Navigation List -->
-            <div class="py-4 px-3 space-y-1.5">
-                <div class="hide-collapsed px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Modules
+            <div class="space-y-1.5">
+                <div class="px-3 text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2 font-mono">
+                    INTELLIGENCE MODULES
                 </div>
 
                 <!-- 1. Dashboard -->
@@ -319,7 +294,7 @@
                     <div class="sidebar-icon-box text-sky-400">
                         <i class="fa-solid fa-shapes text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">1. Dashboard</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">1. Dashboard</span>
                 </button>
 
                 <!-- 2. Trade Now -->
@@ -327,8 +302,8 @@
                     <div class="sidebar-icon-box text-emerald-400">
                         <i class="fa-solid fa-crosshairs text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">2. Trade Now</span>
-                    <span class="hide-collapsed text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">2. Trade Now</span>
+                    <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
                 </button>
 
                 <!-- 3. Market Scanner -->
@@ -336,8 +311,8 @@
                     <div class="sidebar-icon-box text-indigo-400">
                         <i class="fa-solid fa-magnifying-glass text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">3. Market Scanner</span>
-                    <span class="hide-collapsed text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">9 Pairs</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">3. Market Scanner</span>
+                    <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">9 Pairs</span>
                 </button>
 
                 <!-- 4. Live Charts -->
@@ -345,7 +320,7 @@
                     <div class="sidebar-icon-box text-amber-400">
                         <i class="fa-solid fa-chart-candlestick text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">4. Live Charts</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">4. Live Charts</span>
                 </button>
 
                 <!-- 5. Analytics -->
@@ -353,8 +328,8 @@
                     <div class="sidebar-icon-box text-purple-400">
                         <i class="fa-solid fa-chart-pie text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">5. Analytics</span>
-                    <span class="hide-collapsed text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-400">Ledger</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">5. Analytics</span>
+                    <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">Journal</span>
                 </button>
 
                 <!-- 6. Research -->
@@ -362,8 +337,8 @@
                     <div class="sidebar-icon-box text-fuchsia-400">
                         <i class="fa-solid fa-flask text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">6. Research</span>
-                    <span class="hide-collapsed text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-400">P17</span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">6. Research</span>
+                    <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">P17</span>
                 </button>
 
                 <!-- 7. System -->
@@ -371,35 +346,39 @@
                     <div class="sidebar-icon-box text-slate-400">
                         <i class="fa-solid fa-gears text-sm"></i>
                     </div>
-                    <span class="hide-collapsed whitespace-nowrap flex-1">7. System</span>
-                    <span class="hide-collapsed w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="whitespace-nowrap flex-1 text-xs font-bold">7. System</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 </button>
             </div>
         </div>
 
-        <!-- Sidebar Bottom Telemetry & Theme Switcher -->
-        <div class="p-3 border-t border-slate-700/40 space-y-2">
+        <!-- Sidebar Bottom: Telemetry, Safety & Theme -->
+        <div class="space-y-2.5 pt-3 border-t border-slate-700/40">
             
-            <!-- Phase 17 Forward Status Chip (hide when collapsed) -->
-            <div class="hide-collapsed p-2.5 rounded-xl border border-purple-500/30 text-[11px] font-mono" style="background: var(--inner-box)">
-                <div class="flex items-center justify-between text-purple-400 font-bold mb-1">
-                    <span>PHASE 17 TEST</span>
+            <!-- Phase 17 Forward Status Card -->
+            <div class="p-3 rounded-2xl border border-purple-500/30 text-xs font-mono" style="background: var(--inner-box)">
+                <div class="flex items-center justify-between text-purple-400 font-bold mb-1.5 text-[11px]">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> PHASE 17 FORWARD</span>
                     <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
                 </div>
-                <div class="text-slate-400 text-[10px]">Clock: <strong>00:10 UTC</strong></div>
-                <div class="text-emerald-400 text-[10px]">Ledger: <strong>FROZEN</strong></div>
+                <div class="text-slate-400 text-[10px] flex justify-between">
+                    <span>Execution:</span> <strong class="text-white">00:10 UTC</strong>
+                </div>
+                <div class="text-slate-400 text-[10px] flex justify-between mt-0.5">
+                    <span>Ledger:</span> <strong class="text-emerald-400">FROZEN (N ≥ 60)</strong>
+                </div>
             </div>
 
-            <!-- Theme Toggle Button -->
-            <button onclick="toggleTheme()" class="w-full sidebar-item-btn justify-center border border-slate-700/50 hover:border-sky-500/50" style="background: var(--inner-box)">
+            <!-- Theme Toggle Switcher -->
+            <button onclick="toggleTheme()" class="w-full sidebar-item-btn justify-center border border-slate-700/50 hover:border-sky-500/50 py-2.5" style="background: var(--inner-box)">
                 <i id="sidebarThemeIcon" class="fa-solid fa-sun text-amber-400 text-sm"></i>
-                <span id="sidebarThemeLabel" class="hide-collapsed text-xs font-bold">Light Mode</span>
+                <span id="sidebarThemeLabel" class="text-xs font-bold">Light Mode</span>
             </button>
 
-            <!-- Safety Lock -->
-            <div class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[10px] font-mono font-bold flex items-center justify-center gap-1.5">
+            <!-- Real-Money Safety Lock -->
+            <div class="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[10px] font-mono font-bold flex items-center justify-center gap-2">
                 <i class="fa-solid fa-shield-halved text-xs"></i>
-                <span class="hide-collapsed">REAL MONEY: LOCKED</span>
+                <span>REAL MONEY: LOCKED (OFF)</span>
             </div>
         </div>
     </aside>
@@ -966,34 +945,6 @@
             'research': { title: '6. Research', desc: 'Phase 17 Forward Validation & Baseline Decomposition', icon: 'fa-solid fa-flask text-fuchsia-400' },
             'system': { title: '7. System', desc: 'Database, Ingestion Streamer & Telemetry Audit', icon: 'fa-solid fa-gears text-slate-400' }
         };
-
-        let sidebarCollapsed = localStorage.getItem('xtrading_sidebar_collapsed') === 'true';
-
-        function setSidebarState(collapsed) {
-            sidebarCollapsed = collapsed;
-            localStorage.setItem('xtrading_sidebar_collapsed', collapsed ? 'true' : 'false');
-            const sidebar = document.getElementById('appSidebar');
-            const wrapper = document.getElementById('mainContentWrapper');
-            const icon = document.getElementById('sidebarCollapseIcon');
-            
-            if (collapsed) {
-                if (sidebar) sidebar.classList.add('collapsed');
-                if (wrapper) wrapper.classList.add('sidebar-collapsed');
-                if (icon) icon.className = 'fa-solid fa-angles-right text-xs';
-            } else {
-                if (sidebar) sidebar.classList.remove('collapsed');
-                if (wrapper) wrapper.classList.remove('sidebar-collapsed');
-                if (icon) icon.className = 'fa-solid fa-angles-left text-xs';
-            }
-            
-            if (currentTab === 'charts' && lwChart) {
-                setTimeout(initOrResizeChart, 280);
-            }
-        }
-
-        function toggleSidebarCollapse() {
-            setSidebarState(!sidebarCollapsed);
-        }
 
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('appSidebar');
@@ -1728,8 +1679,11 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            try {
+                localStorage.removeItem('xtrading_sidebar_collapsed');
+                localStorage.removeItem('sidebar_collapsed');
+            } catch (e) {}
             applyTheme(currentTheme);
-            setSidebarState(sidebarCollapsed);
             switchTab('dashboard');
             loadDashboard();
         });
