@@ -335,12 +335,23 @@ def get_analytics_api():
 
 @app.post("/api/record-paper-trade")
 def post_record_paper_trade(entry: Dict[str, Any]):
-    """Record simulated trade recommendation into paper journal (strict validation)."""
+    """Record simulated trade recommendation into paper journal (strict validation & duplicate gate)."""
     direction = entry.get("direction")
     if direction not in ["LONG", "SHORT"]:
         raise HTTPException(
             status_code=400,
             detail="Cannot record paper trade: Direction must be LONG or SHORT. NEUTRAL / NO TRADE cannot be simulated."
+        )
+    
+    sym = entry.get("symbol")
+    existing_open = [
+        t for t in load_realtime_journal()
+        if t.get("symbol") == sym and t.get("status") == "OPEN"
+    ]
+    if existing_open:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot record paper trade: An open position for {sym} ({existing_open[0].get('direction')}) already exists (ID: {existing_open[0].get('id')})."
         )
     
     entry["id"] = f"SIM-{int(time.time())}"
