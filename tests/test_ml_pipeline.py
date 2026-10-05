@@ -64,8 +64,9 @@ def main():
         assert len(set(tr) & set(te)) == 0, "purged K-fold leaked: train/test overlap"
     print(f"Purged K-fold: {len(pkf_folds)} folds OK, no train/test index overlap")
 
-    print("\n=== [6] Full training pipeline (small synthetic run) ===")
-    result = run_training_pipeline(df, n_splits=3, output_dir="/tmp/ml_smoke_test_models")
+    import tempfile
+    smoke_out_dir = tempfile.mkdtemp(prefix="ml_smoke_test_")
+    result = run_training_pipeline(df, n_splits=3, output_dir=smoke_out_dir)
     print("Metrics:", result["metrics"])
     assert 0 <= result["metrics"]["holdout_accuracy"] <= 1
 

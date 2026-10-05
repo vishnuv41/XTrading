@@ -16,6 +16,7 @@ exit rule so results are comparable across model versions.
 
 import numpy as np
 import pandas as pd
+from config.costs import CANONICAL_ONE_WAY_BPS
 
 
 def run_backtest(
@@ -24,7 +25,7 @@ def run_backtest(
     price_col: str = "close",
     max_holding: int = 20,
     confidence_threshold: float = 0.4,
-    transaction_cost_bps: float = 15.0,
+    transaction_cost_bps: float = CANONICAL_ONE_WAY_BPS,
     periods_per_year: int = 252,
 ) -> dict:
     """

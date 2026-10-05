@@ -75,8 +75,24 @@ def get_shap_feature_importance(shap_values, feature_names: list, class_index: i
             values = shap_values[class_index]
         else:
             values = np.mean([np.abs(v) for v in shap_values], axis=0)
-            values = values  # already mean abs across classes
             mean_abs = values.mean(axis=0)
+            return (
+                pd.DataFrame({"feature": feature_names, "mean_abs_shap": mean_abs})
+                .sort_values("mean_abs_shap", ascending=False)
+                .reset_index(drop=True)
+            )
+    elif isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+        if class_index is not None:
+            # SHAP typically uses (n_samples, n_features, n_classes) or (n_samples, n_classes, n_features)
+            if shap_values.shape[1] == len(feature_names):
+                values = shap_values[:, :, class_index]
+            else:
+                values = shap_values[:, class_index, :]
+        else:
+            if shap_values.shape[1] == len(feature_names):
+                mean_abs = np.abs(shap_values).mean(axis=(0, 2))
+            else:
+                mean_abs = np.abs(shap_values).mean(axis=(0, 1))
             return (
                 pd.DataFrame({"feature": feature_names, "mean_abs_shap": mean_abs})
                 .sort_values("mean_abs_shap", ascending=False)

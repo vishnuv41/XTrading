@@ -10,14 +10,22 @@ Models:
 - Funding Rate Accumulation (Perpetuals)
 """
 
+from config.costs import (
+    TAKER_FEE_BPS,
+    MAKER_FEE_BPS,
+    SLIPPAGE_BPS,
+    BID_ASK_SPREAD_BPS,
+    FUNDING_RATE_8H_PCT,
+)
+
 class CostModel:
     def __init__(
         self,
-        taker_fee_pct: float = 0.0005,    # 5 BPS Binance Futures Taker Fee
-        maker_fee_pct: float = 0.0002,    # 2 BPS Binance Futures Maker Fee
-        slippage_pct: float = 0.0005,     # 5 BPS Slippage per trade
-        bid_ask_spread_pct: float = 0.0002, # 2 BPS Spread
-        funding_rate_8h_pct: float = 0.0001  # 1 BPS standard 8h funding rate
+        taker_fee_pct: float = TAKER_FEE_BPS / 10_000.0,
+        maker_fee_pct: float = MAKER_FEE_BPS / 10_000.0,
+        slippage_pct: float = SLIPPAGE_BPS / 10_000.0,
+        bid_ask_spread_pct: float = BID_ASK_SPREAD_BPS / 10_000.0,
+        funding_rate_8h_pct: float = FUNDING_RATE_8H_PCT
     ):
         self.taker_fee_pct = taker_fee_pct
         self.maker_fee_pct = maker_fee_pct
