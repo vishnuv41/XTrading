@@ -9,9 +9,9 @@ Tracks 3 parallel arms with independent $10,000 USD virtual accounts:
 
 Features:
 - Cryptographic SHA-256 Hash-Chained Ledger: Every row is linked to the previous row's hash.
-- Pinned Genesis Spec: Records exact code commit hash and strategy parameter SHA-256 in the genesis row.
-- Worktree Isolation: Commits and pushes exclusively within strategy_lab/paper/.worktree_ledger/
-  without ever modifying or touching the developer's active working tree branch.
+- Dynamic Genesis Pin: Dynamically resolves git HEAD and hashes of all 5 strategy code files on genesis.
+- Code Integrity Audit: On every run, recomputes hashes of the 5 files; if any differ, appends a "code_change" entry.
+- Worktree Isolation: Commits and pushes exclusively within strategy_lab/paper/.worktree_ledger/ to origin/forward-ledger.
 - Idempotent Catch-Up: Processes all missed closed calendar days chronologically.
 """
 
@@ -22,7 +22,7 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 
@@ -32,6 +32,7 @@ from strategy_lab.lowturn.panel_loader import load_panel_universe, UNIVERSE_SYMB
 from strategy_lab.lowturn.cost_model import LowTurnoverCostModel, CANONICAL_ROUND_TRIP_BPS
 from strategy_lab.lowturn.strategies import generate_single_ema_weights
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 STATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state")
 STATE_FILE = os.path.join(STATE_DIR, "forward_track_state.json")
 LEDGER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "forward_track_ledger.jsonl")
@@ -39,7 +40,14 @@ WORKTREE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".worktr
 
 # Official Start Timestamp (first closed bar post-freeze)
 OFFICIAL_START_TS = "2026-10-06T00:00:00+00:00"
-FROZEN_CODE_COMMIT = "031037b721a7b1f02aca677f93541a8a3fc7541e"
+
+TRACKED_CODE_FILES = [
+    "strategy_lab/paper/forward_baseline_tracker.py",
+    "strategy_lab/lowturn/strategies.py",
+    "strategy_lab/lowturn/execution.py",
+    "strategy_lab/lowturn/cost_model.py",
+    "config/costs.py",
+]
 
 FROZEN_STRATEGY_PARAMETERS = {
     "protocol": "Phase 17 Trend_EMA_50 Forward Benchmark",
@@ -51,6 +59,38 @@ FROZEN_STRATEGY_PARAMETERS = {
     "arm_c_target_crypto_exposure": 0.45,
     "execution_convention": "t+1_open",
 }
+
+
+def get_current_git_head() -> str:
+    """Dynamically get current git HEAD commit hash."""
+    try:
+        res = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return res.stdout.strip()
+    except Exception:
+        return "UNKNOWN_HEAD"
+
+
+def compute_file_sha256(rel_path: str) -> str:
+    """Compute SHA-256 hash of a file relative to project root."""
+    full_path = os.path.join(PROJECT_ROOT, rel_path)
+    if not os.path.exists(full_path):
+        return "FILE_NOT_FOUND"
+    hasher = hashlib.sha256()
+    with open(full_path, "rb") as f:
+        while chunk := f.read(65536):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def compute_all_tracked_hashes() -> Dict[str, str]:
+    """Compute SHA-256 for all 5 core strategy code files."""
+    return {f: compute_file_sha256(f) for f in TRACKED_CODE_FILES}
 
 
 def get_parameters_sha256() -> str:
@@ -65,9 +105,13 @@ def initialize_or_load_state() -> Dict[str, Any]:
             return json.load(f)
 
     n_syms = len(UNIVERSE_SYMBOLS)
+    current_hashes = compute_all_tracked_hashes()
+    current_head = get_current_git_head()
+
     return {
         "official_start_date": OFFICIAL_START_TS,
-        "frozen_commit": FROZEN_CODE_COMMIT,
+        "frozen_code_commit": current_head,
+        "tracked_file_hashes": current_hashes,
         "parameters_sha256": get_parameters_sha256(),
         "last_updated": None,
         "round_trip_bps": CANONICAL_ROUND_TRIP_BPS,
@@ -134,21 +178,47 @@ def append_to_hash_chained_ledger(record: Dict[str, Any]):
     prev_hash = get_last_ledger_hash()
     record["prev_hash"] = prev_hash
 
-    # If genesis block, pin the frozen spec metadata
+    # If genesis block, pin the dynamically computed metadata
     if prev_hash == "0" * 64:
         record["genesis_spec"] = {
-            "frozen_code_commit": FROZEN_CODE_COMMIT,
+            "frozen_code_commit": get_current_git_head(),
+            "tracked_file_hashes": compute_all_tracked_hashes(),
             "parameters_sha256": get_parameters_sha256(),
             "strategy_parameters": FROZEN_STRATEGY_PARAMETERS,
         }
 
-    # Compute canonical hash of the record payload
+    # Compute canonical hash of the record payload (excluding entry_hash)
     payload_str = json.dumps(record, sort_keys=True, default=str)
     entry_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
     record["entry_hash"] = entry_hash
 
     with open(LEDGER_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, default=str) + "\n")
+
+
+def check_and_record_code_changes(state: Dict[str, Any]):
+    """
+    Recompute hashes of all 5 core strategy files.
+    If any file's hash differs from state, appends a 'code_change' entry to the ledger.
+    """
+    current_hashes = compute_all_tracked_hashes()
+    stored_hashes = state.get("tracked_file_hashes", {})
+
+    for file_path, curr_h in current_hashes.items():
+        prev_h = stored_hashes.get(file_path)
+        if prev_h is not None and curr_h != prev_h:
+            print(f"WARNING: Code change detected in {file_path}! Appending code_change entry to ledger.")
+            code_change_entry = {
+                "entry_type": "code_change",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "file": file_path,
+                "old_sha256": prev_h,
+                "new_sha256": curr_h,
+            }
+            append_to_hash_chained_ledger(code_change_entry)
+            stored_hashes[file_path] = curr_h
+
+    state["tracked_file_hashes"] = current_hashes
 
 
 def compute_target_weights_for_bar(
@@ -190,7 +260,7 @@ def push_ledger_via_isolated_worktree(last_ts_str: str):
         os.makedirs(os.path.dirname(dest_ledger), exist_ok=True)
         shutil.copy2(LEDGER_FILE, dest_ledger)
 
-        # Commit and push within the dedicated worktree directory
+        # Commit and push strictly within the dedicated worktree directory
         subprocess.run(["git", "add", "strategy_lab/paper/forward_track_ledger.jsonl"], cwd=WORKTREE_DIR, check=False)
         commit_res = subprocess.run(
             ["git", "commit", "-m", f"chore(tracker): forward ledger update {last_ts_str}"],
@@ -211,9 +281,13 @@ def push_ledger_via_isolated_worktree(last_ts_str: str):
 
 def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
     """
-    Executes daily tracker with catch-up, hash-chaining, and isolated worktree pushing.
+    Executes daily tracker with catch-up, hash-chaining, code change detection, and isolated worktree pushing.
     """
     state = initialize_or_load_state()
+    
+    # Check for code changes against stored file hashes
+    check_and_record_code_changes(state)
+
     panel = load_panel_universe(timeframe=timeframe)
     cost_model = LowTurnoverCostModel(round_trip_bps=state["round_trip_bps"])
 
@@ -235,6 +309,7 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
     if len(unprocessed_indices) == 0:
         latest_avail = sample_df.index[-1].isoformat()
         print(f"Forward tracker: up to date. Latest available bar is {latest_avail}. Waiting for next daily close >= {OFFICIAL_START_TS}.")
+        save_state(state)
         return state
 
     print(f"Forward tracker: processing {len(unprocessed_indices)} pending closed bar(s)...")
@@ -254,7 +329,7 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
             }
 
         arm_targets = compute_target_weights_for_bar(panel, bar_idx)
-        ledger_entry = {"timestamp": ts_str, "arms": {}}
+        ledger_entry = {"entry_type": "daily_bar", "timestamp": ts_str, "arms": {}}
 
         for arm_name, arm_data in state["arms"].items():
             prev_weights = arm_data["current_weights"]

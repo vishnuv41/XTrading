@@ -17,6 +17,11 @@ $Action = New-ScheduledTaskAction -Execute $PythonExe -Argument $TrackerScript -
 $Trigger = New-ScheduledTaskTrigger -Daily -At "05:40"
 $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
 
+# Operational Note:
+# Registered to run under the active logged-on user account.
+# Configured with -StartWhenAvailable and -AllowStartIfOnBatteries.
+# If the machine is asleep/signed-out at 05:40 IST, the task triggers upon next login,
+# and the forward tracker's chronological catch-up logic automatically processes all missed daily bars.
 Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Description "Daily Phase 17 Trend_EMA_50 Forward Paper-Trading Tracker" -Force
 
 Write-Host "Task registered successfully. To run manually: schtasks /run /tn $TaskName"
