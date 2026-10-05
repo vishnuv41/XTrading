@@ -236,6 +236,25 @@ def step_daily_tracker(timeframe: str = "1d") -> Dict[str, Any]:
 
     save_state(state)
     print(f"Forward tracker updated to: {state['last_updated']}.")
+
+    # Automated git commit & push of forward_track_ledger.jsonl to anchor timestamp on remote
+    try:
+        import subprocess
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        subprocess.run(["git", "add", "strategy_lab/paper/forward_track_ledger.jsonl"], cwd=project_root, check=False)
+        commit_res = subprocess.run(
+            ["git", "commit", "-m", f"chore(tracker): forward ledger update {state['last_updated']}"],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if "nothing to commit" not in commit_res.stdout.lower() and commit_res.returncode == 0:
+            subprocess.run(["git", "push", "origin", "main"], cwd=project_root, check=False)
+            print("Forward track ledger committed and pushed to remote.")
+    except Exception as e:
+        print(f"Note: automated remote ledger push skipped or offline: {e}")
+
     return state
 
 
